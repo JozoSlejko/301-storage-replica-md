@@ -1,0 +1,255 @@
+﻿{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "namePrefix": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 8,
+            "metadata": {
+                "description": "Naming prefix for each new resource created. 3-char min, 8-char max, lowercase alphanumeric"
+            }
+        },
+        "domainName": {
+            "type": "string",
+            "metadata": {
+                "description": "DNS domain name for existing Active Directory domain"
+            }
+        },
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the Administrator of the existing Active Directory Domain"
+            }
+        },
+        "adminPassword": {
+            "type": "securestring",
+            "minLength": 12,
+            "metadata": {
+                "description": "Password for the Administrator account of the existing Active Directory Domain"
+            }
+        },
+        "nicSubnetUri": {
+            "type": "string",
+            "metadata": {
+                "description": "Resource ID for existing vnet/subnet to which VM NICs should be attached"
+            }
+        },
+        "vmSize": {
+            "type": "string",
+            "metadata": {
+                "description": "Size of the S2D VMs to be created"
+            }
+        },
+        "enableAcceleratedNetworking": {
+            "type": "bool",
+            "metadata": {
+                "description": "Enable (true) or Disable (false) Accelerated Networking - if enabling, make sure you are selecting appropriate VM Size and Region"
+            }
+        },
+        "vmDiskSize": {
+            "type": "int",
+            "minValue": 128,
+            "maxValue": 1023,
+            "metadata": {
+                "description": "Size of each data disk in GB on each S2D VM (Min=128, Max=1023)"
+            }
+        },
+        "vmDiskCount": {
+            "type": "int",
+            "minValue": 2,
+            "maxValue": 32,
+            "metadata": {
+                "description": "Number of data disks on each S2D VM (Min=2, Max=32). Ensure that the VM size you've selected will support this number of data disks."
+            }
+        },
+        "imagePublisher": {
+            "type": "string",
+            "defaultValue": "MicrosoftWindowsServer"
+        },
+        "imageOffer": {
+            "type": "string",
+            "defaultValue": "WindowsServer"
+        },
+        "imageSKU": {
+            "type": "string",
+            "defaultValue": "2016-Datacenter"
+        },
+        "imageVersion": {
+            "type": "string",
+            "defaultValue": "latest"
+        },
+        "_artifactsLocation": {
+            "type": "string"
+        },
+        "_artifactsLocationSasToken": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "apiVersionStorage": "2016-01-01",
+//        "witnessStorageName": "[concat(parameters('namePrefix'),uniqueString(resourceGroup().id),'cw')]",
+//        "witnessStorageType": "Standard_LRS",
+        "vmNamePrefix": "[concat(parameters('namePrefix'),'-sr-')]",
+        "vmAvailabilitySetName": "[concat(variables('vmNamePrefix'),'as')]",
+//        "clusterName": "[concat(variables('vmNamePrefix'),'c')]",
+        "vmLoopTemplateURL": "[concat(parameters('_artifactsLocation'),'/nestedtemplates/newVM.json',parameters('_artifactsLocationSasToken'))]",
+        "srPrepModulesURL": "[concat(parameters('_artifactsLocation'),'/dsc/prep-sr.ps1.zip',parameters('_artifactsLocationSasToken'))]",
+        "srPrepFunction": "PrepSR.ps1\\PrepSR",
+        "srConfigModulesURL": "[concat(parameters('_artifactsLocation'),'/dsc/config-sr.ps1.zip',parameters('_artifactsLocationSasToken'))]",
+        "srConfigFunction": "ConfigSR.ps1\\ConfigSR"
+    },
+    "resources": [
+        {
+            "name": "[concat(variables('vmNamePrefix'), '-nic')]",
+            "type": "Microsoft.Network/networkInterfaces",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2016-09-01",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[parameters('nicSubnetUri')]"
+                            }
+                        }
+                    }
+                ],
+                "enableAcceleratedNetworking": "[parameters('enableAcceleratedNetworking')]"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2015-01-01",
+            "name": "[concat(variables('vmNamePrefix'),copyindex(),'-newVM')]",
+            "dependsOn": [
+                "nicLoop",
+                "[resourceId('Microsoft.Compute/availabilitySets', variables('vmAvailabilitySetName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('vmLoopTemplateURL')]"
+                },
+                "parameters": {
+                    "vmName": {
+                        "value": "[concat(variables('vmNamePrefix'), copyindex())]"
+                    },
+                    "vmAvailabilitySetName": {
+                        "value": "[variables('vmAvailabilitySetName')]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('vmSize')]"
+                    },
+                    "vmDiskCount": {
+                        "value": "[parameters('vmDiskCount')]"
+                    },
+                    "vmDiskSize": {
+                        "value": "[parameters('vmDiskSize')]"
+                    },
+                    "adminUsername": {
+                        "value": "[parameters('adminUsername')]"
+                    },
+                    "adminPassword": {
+                        "value": "[parameters('adminPassword')]"
+                    },
+                    "_artifactsLocation": {
+                        "value": "[parameters('_artifactsLocation')]"
+                    },
+                    "_artifactsLocationSasToken": {
+                        "value": "[parameters('_artifactsLocationSasToken')]"
+                    },
+                    "imagePublisher": {
+                        "value": "[parameters('imagePublisher')]"
+                    },
+                    "imageOffer": {
+                        "value": "[parameters('imageOffer')]"
+                    },
+                    "imageSKU": {
+                        "value": "[parameters('imageSKU')]"
+                    },
+                    "imageVersion": {
+                        "value": "[parameters('imageVersion')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(variables('vmNamePrefix'),'/srPrep')]",
+            "apiVersion": "2015-06-15",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "virtualMachineLoop"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.20",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "modulesUrl": "[variables('srPrepModulesURL')]",
+                    "configurationFunction": "[variables('srPrepFunction')]",
+                    "properties": {
+                        "domainName": "[parameters('domainName')]",
+                        "adminCreds": {
+                            "userName": "[parameters('adminUserName')]",
+                            "password": "PrivateSettingsRef:adminPassword"
+                        }
+                    }
+                },
+                "protectedSettings": {
+                    "items": {
+                        "adminPassword": "[parameters('adminPassword')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(variables('vmNamePrefix'),'0/srConfig')]",
+            "apiVersion": "2015-06-15",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "virtualMachineLoop",
+                "virtualMachineExtensionLoop"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Powershell",
+                "type": "DSC",
+                "typeHandlerVersion": "2.20",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "modulesUrl": "[variables('srConfigModulesURL')]",
+                    "configurationFunction": "[variables('srConfigFunction')]",
+                    "properties": {
+                        "domainName": "[parameters('domainName')]",
+                        "vmNamePrefix": "[variables('vmNamePrefix')]",
+                        "vmDiskSize": "[parameters('vmDiskSize')]",
+                        "adminCreds": {
+                            "userName": "[parameters('adminUserName')]",
+                            "password": "PrivateSettingsRef:adminPassword"
+                        }
+                    }
+                },
+                "protectedSettings": {
+                    "items": {
+                        "adminPassword": "[parameters('adminPassword')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+//        "sofsName": {
+//           "type": "string",
+//           "value": "[parameters('sofsName')]"
+//       },
+//        "shareName": {
+//            "type": "string",
+//            "value": "[parameters('shareName')]"
+//        }
+    }
+}
