@@ -95,19 +95,19 @@
   },
   "variables": {
     "subnetRef": "[resourceId(parameters('existingVirtualNetworkRGName'),'Microsoft.Network/virtualNetworks/subnets',parameters('existingVirtualNetworkName'),parameters('existingSubnetName'))]",
-    "deployS2DClusterTemplateURL": "[concat(parameters('_artifactsLocation'),'/nestedtemplates/deploy-s2d-cluster.json',parameters('_artifactsLocationSasToken'))]",
-    "deployS2DCluster": "deployS2DCluster"
+    "deployStorageReplicaTemplateURL": "[concat(parameters('_artifactsLocation'),'/nestedtemplates/deploy-storage-replica.json',parameters('_artifactsLocationSasToken'))]",
+    "deployStorageReplica": "deployStorageReplica"
   },
   "resources": [
     {
-      "name": "[variables('deployS2DCluster')]",
+      "name": "[variables('deployStorageReplica')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
       "dependsOn": [],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('deployS2DClusterTemplateURL')]",
+          "uri": "[variables('deployStorageReplicaTemplateURL')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
