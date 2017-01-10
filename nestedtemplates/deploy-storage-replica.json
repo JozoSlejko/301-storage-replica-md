@@ -90,7 +90,7 @@
         "apiVersionStorage": "2016-01-01",
 //        "witnessStorageName": "[concat(parameters('namePrefix'),uniqueString(resourceGroup().id),'cw')]",
 //        "witnessStorageType": "Standard_LRS",
-        "vmNamePrefix": "[concat(parameters('namePrefix'),'-sr-')]",
+        "vmNamePrefix": "[concat(parameters('namePrefix'),'-sr')]",
 //        "vmAvailabilitySetName": "[concat(variables('vmNamePrefix'),'as')]",
 //        "clusterName": "[concat(variables('vmNamePrefix'),'c')]",
         "vmLoopTemplateURL": "[concat(parameters('_artifactsLocation'),'/nestedtemplates/newVM.json',parameters('_artifactsLocationSasToken'))]",
