@@ -181,7 +181,6 @@
             "apiVersion": "2015-06-15",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "virtualMachineLoop"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
@@ -212,8 +211,6 @@
             "apiVersion": "2015-06-15",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "virtualMachineLoop",
-                "virtualMachineExtensionLoop"
             ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
