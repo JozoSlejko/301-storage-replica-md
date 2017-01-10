@@ -47,14 +47,6 @@
                 "description": "Enable (true) or Disable (false) Accelerated Networking - if enabling, make sure you are selecting appropriate VM Size and Region"
             }
         },
-        "vmCount": {
-            "type": "int",
-            "minValue": 2,
-            "maxValue": 3,
-            "metadata": {
-                "description": "Number of S2D VMs to be created in cluster (Min=2, Max=3)"
-            }
-        },
         "vmDiskSize": {
             "type": "int",
             "minValue": 128,
@@ -69,18 +61,6 @@
             "maxValue": 32,
             "metadata": {
                 "description": "Number of data disks on each S2D VM (Min=2, Max=32). Ensure that the VM size you've selected will support this number of data disks."
-            }
-        },
-        "sofsName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of clustered Scale-Out File Server role"
-            }
-        },
-        "shareName": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of shared data folder on clustered Scale-Out File Server role"
             }
         },
         "imagePublisher": {

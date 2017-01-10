@@ -13,7 +13,7 @@
     "vmSize": {
       "type": "string",
       "metadata": {
-        "description": "Size of the S2D VMs to be created"
+        "description": "Size of the Storage Replica VM to be created"
       },
       "defaultValue": "Standard_DS1_v2"
     },
@@ -22,15 +22,6 @@
       "metadata": {
         "description": "Enable (true) or Disable (false) Accelerated Networking - if enabling, make sure you are selecting appropriate VM Size and Region"
       }
-    },
-    "vmCount": {
-      "type": "int",
-      "minValue": 2,
-      "maxValue": 3,
-      "metadata": {
-        "description": "Number of S2D VMs to be created in cluster (Min=2, Max=3)"
-      },
-      "defaultValue": 2
     },
     "vmDiskSize": {
       "type": "int",
@@ -87,26 +78,12 @@
         "description": "Name of the existing subnet in the existing VNET to which the S2D VMs should be deployed"
       }
     },
-    "sofsName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of clustered Scale-Out File Server role"
-      },
-      "defaultValue": "fs01"
-    },
-    "shareName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of shared data folder on clustered Scale-Out File Server role"
-      },
-      "defaultValue": "data"
-    },
     "_artifactsLocation": {
       "type": "string",
       "metadata": {
         "description": "Location of resources that the script is dependent on such as linked templates and DSC modules"
       },
-      "defaultValue": "https://raw.githubusercontent.com/robotechredmond/301-storage-spaces-direct-md/master"
+      "defaultValue": "https://github.com/albertwo1978/301-storage-replica-md/master"
     },
     "_artifactsLocationSasToken": {
       "type": "securestring",
@@ -155,20 +132,11 @@
           "enableAcceleratedNetworking": {
             "value": "[parameters('enableAcceleratedNetworking')]"
           },
-          "vmCount": {
-            "value": "[parameters('vmCount')]"
-          },
           "vmDiskSize": {
             "value": "[parameters('vmDiskSize')]"
           },
           "vmDiskCount": {
             "value": "[parameters('vmDiskCount')]"
-          },
-          "sofsName": {
-            "value": "[parameters('sofsName')]"
-          },
-          "shareName": {
-            "value": "[parameters('shareName')]"
           },
           "_artifactsLocation": {
             "value": "[parameters('_artifactsLocation')]"
@@ -181,9 +149,5 @@
     }
   ],
   "outputs": {
-    "sofsPath": {
-      "type": "string",
-      "value": "[concat('\\\\',reference(variables('deployS2DCluster')).outputs.sofsName.value,'\\',reference(variables('deployS2DCluster')).outputs.shareName.value)]"
-    }
   }
 }
