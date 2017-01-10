@@ -91,7 +91,7 @@
 //        "witnessStorageName": "[concat(parameters('namePrefix'),uniqueString(resourceGroup().id),'cw')]",
 //        "witnessStorageType": "Standard_LRS",
         "vmNamePrefix": "[concat(parameters('namePrefix'),'-sr-')]",
-        "vmAvailabilitySetName": "[concat(variables('vmNamePrefix'),'as')]",
+//        "vmAvailabilitySetName": "[concat(variables('vmNamePrefix'),'as')]",
 //        "clusterName": "[concat(variables('vmNamePrefix'),'c')]",
         "vmLoopTemplateURL": "[concat(parameters('_artifactsLocation'),'/nestedtemplates/newVM.json',parameters('_artifactsLocationSasToken'))]",
         "srPrepModulesURL": "[concat(parameters('_artifactsLocation'),'/dsc/prep-sr.ps1.zip',parameters('_artifactsLocationSasToken'))]",
@@ -125,7 +125,6 @@
             "apiVersion": "2015-01-01",
             "name": "[concat(variables('vmNamePrefix'),'-newVM')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Compute/availabilitySets', variables('vmAvailabilitySetName'))]"
             ],
             "properties": {
                 "mode": "Incremental",
@@ -135,9 +134,6 @@
                 "parameters": {
                     "vmName": {
                         "value": "[concat(variables('vmNamePrefix'))]"
-                    },
-                    "vmAvailabilitySetName": {
-                        "value": "[variables('vmAvailabilitySetName')]"
                     },
                     "vmSize": {
                         "value": "[parameters('vmSize')]"
