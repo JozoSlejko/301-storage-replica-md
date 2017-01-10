@@ -125,7 +125,6 @@
             "apiVersion": "2015-01-01",
             "name": "[concat(variables('vmNamePrefix'),'-newVM')]",
             "dependsOn": [
-                "nicLoop",
                 "[resourceId('Microsoft.Compute/availabilitySets', variables('vmAvailabilitySetName'))]"
             ],
             "properties": {
