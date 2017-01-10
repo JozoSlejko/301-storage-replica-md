@@ -123,7 +123,7 @@
         {
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2015-01-01",
-            "name": "[concat(variables('vmNamePrefix'),copyindex(),'-newVM')]",
+            "name": "[concat(variables('vmNamePrefix'),'-newVM')]",
             "dependsOn": [
                 "nicLoop",
                 "[resourceId('Microsoft.Compute/availabilitySets', variables('vmAvailabilitySetName'))]"
@@ -135,7 +135,7 @@
                 },
                 "parameters": {
                     "vmName": {
-                        "value": "[concat(variables('vmNamePrefix'), copyindex())]"
+                        "value": "[concat(variables('vmNamePrefix'))]"
                     },
                     "vmAvailabilitySetName": {
                         "value": "[variables('vmAvailabilitySetName')]"
