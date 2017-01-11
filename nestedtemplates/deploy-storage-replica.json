@@ -177,7 +177,7 @@
             "apiVersion": "2015-06-15",
             "location": "[resourceGroup().location]",
           "dependsOn": [
-                "[concat(variables('vmNamePrefix'),'-newVM')]"
+                "[concat('Microsoft.Resources/deployments/', variables('vmNamePrefix'), '-newVM')]"
           ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
@@ -208,7 +208,7 @@
             "apiVersion": "2015-06-15",
             "location": "[resourceGroup().location]",
           "dependsOn": [
-                "[concat(variables('vmNamePrefix'),'/srPrep')]"
+            "[concat('Microsoft.Resources/deployments/', variables('vmNamePrefix'), '/srPrep')]"
           ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
