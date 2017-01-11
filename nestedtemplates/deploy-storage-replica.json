@@ -90,10 +90,10 @@
         "apiVersionStorage": "2016-01-01",
 //        "witnessStorageName": "[concat(parameters('namePrefix'),uniqueString(resourceGroup().id),'cw')]",
 //        "witnessStorageType": "Standard_LRS",
-        "vmNamePrefix": "[concat(parameters('namePrefix'),'-sr')]",
+        "vmNamePrefix": "[concat(parameters('namePrefix'),'-sr-tgt')]",
 //        "vmAvailabilitySetName": "[concat(variables('vmNamePrefix'),'as')]",
 //        "clusterName": "[concat(variables('vmNamePrefix'),'c')]",
-        "vmLoopTemplateURL": "[concat(parameters('_artifactsLocation'),'/nestedtemplates/newVM.json',parameters('_artifactsLocationSasToken'))]",
+        "vmTemplateURL": "[concat(parameters('_artifactsLocation'),'/nestedtemplates/newVM.json',parameters('_artifactsLocationSasToken'))]",
         "srPrepModulesURL": "[concat(parameters('_artifactsLocation'),'/dsc/prep-sr.ps1.zip',parameters('_artifactsLocationSasToken'))]",
         "srPrepFunction": "PrepSR.ps1\\PrepSR",
         "srConfigModulesURL": "[concat(parameters('_artifactsLocation'),'/dsc/config-sr.ps1.zip',parameters('_artifactsLocationSasToken'))]",
@@ -129,7 +129,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "[variables('vmLoopTemplateURL')]"
+                    "uri": "[variables('vmTemplateURL')]"
                 },
                 "parameters": {
                     "vmName": {
@@ -203,7 +203,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('vmNamePrefix'),'0/srConfig')]",
+            "name": "[concat(variables('vmNamePrefix'),'/srConfig')]",
             "apiVersion": "2015-06-15",
             "location": "[resourceGroup().location]",
             "dependsOn": [
