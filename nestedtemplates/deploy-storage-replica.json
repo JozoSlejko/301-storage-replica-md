@@ -88,16 +88,10 @@
     },
     "variables": {
         "apiVersionStorage": "2016-01-01",
-//        "witnessStorageName": "[concat(parameters('namePrefix'),uniqueString(resourceGroup().id),'cw')]",
-//        "witnessStorageType": "Standard_LRS",
         "vmNamePrefix": "[concat(parameters('namePrefix'),'-sr-tgt')]",
-//        "vmAvailabilitySetName": "[concat(variables('vmNamePrefix'),'as')]",
-//        "clusterName": "[concat(variables('vmNamePrefix'),'c')]",
         "vmTemplateURL": "[concat(parameters('_artifactsLocation'),'/nestedtemplates/newVM.json',parameters('_artifactsLocationSasToken'))]",
-        "srPrepModulesURL": "[concat(parameters('_artifactsLocation'),'/dsc/prep-sr.ps1.zip',parameters('_artifactsLocationSasToken'))]",
-        "srPrepFunction": "PrepSR.ps1\\PrepSR",
-        "srConfigModulesURL": "[concat(parameters('_artifactsLocation'),'/dsc/config-sr.ps1.zip',parameters('_artifactsLocationSasToken'))]",
-        "srConfigFunction": "ConfigSR.ps1\\ConfigSR"
+        "srTgtModulesURL": "[concat(parameters('_artifactsLocation'),'/dsc/SRtgt.ps1.zip',parameters('_artifactsLocationSasToken'))]",
+        "srTgtFunction": "SRtgt.ps1\\SRtgt"
     },
     "resources": [
         {
@@ -173,7 +167,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('vmNamePrefix'),'/srPrep')]",
+            "name": "[concat(variables('vmNamePrefix'),'/SRtgt')]",
             "apiVersion": "2015-06-15",
             "location": "[resourceGroup().location]",
           "dependsOn": [
@@ -185,43 +179,10 @@
                 "typeHandlerVersion": "2.20",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
-                    "modulesUrl": "[variables('srPrepModulesURL')]",
-                    "configurationFunction": "[variables('srPrepFunction')]",
+                    "modulesUrl": "[variables('srTgtModulesURL')]",
+                    "configurationFunction": "[variables('srTgtFunction')]",
                     "properties": {
                         "domainName": "[parameters('domainName')]",
-                        "adminCreds": {
-                            "userName": "[parameters('adminUserName')]",
-                            "password": "PrivateSettingsRef:adminPassword"
-                        }
-                    }
-                },
-                "protectedSettings": {
-                    "items": {
-                        "adminPassword": "[parameters('adminPassword')]"
-                    }
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('vmNamePrefix'),'/srConfig')]",
-            "apiVersion": "2015-06-15",
-            "location": "[resourceGroup().location]",
-          "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/',variables('vmNamePrefix'),'/extensions/srPrep')]"
-          ],
-            "properties": {
-                "publisher": "Microsoft.Powershell",
-                "type": "DSC",
-                "typeHandlerVersion": "2.20",
-                "autoUpgradeMinorVersion": true,
-                "settings": {
-                    "modulesUrl": "[variables('srConfigModulesURL')]",
-                    "configurationFunction": "[variables('srConfigFunction')]",
-                    "properties": {
-                        "domainName": "[parameters('domainName')]",
-                        "vmNamePrefix": "[variables('vmNamePrefix')]",
-                        "vmDiskSize": "[parameters('vmDiskSize')]",
                         "adminCreds": {
                             "userName": "[parameters('adminUserName')]",
                             "password": "PrivateSettingsRef:adminPassword"
