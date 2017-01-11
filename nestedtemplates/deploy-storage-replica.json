@@ -176,8 +176,9 @@
             "name": "[concat(variables('vmNamePrefix'),'/srPrep')]",
             "apiVersion": "2015-06-15",
             "location": "[resourceGroup().location]",
-            "dependsOn": [
-            ],
+          "dependsOn": [
+                "[concat(variables('vmNamePrefix'),'-newVM')]"
+          ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
                 "type": "DSC",
@@ -206,8 +207,9 @@
             "name": "[concat(variables('vmNamePrefix'),'/srConfig')]",
             "apiVersion": "2015-06-15",
             "location": "[resourceGroup().location]",
-            "dependsOn": [
-            ],
+          "dependsOn": [
+                "[concat(variables('vmNamePrefix'),'/srPrep')]"
+          ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
                 "type": "DSC",
