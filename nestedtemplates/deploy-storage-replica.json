@@ -208,7 +208,7 @@
             "apiVersion": "2015-06-15",
             "location": "[resourceGroup().location]",
           "dependsOn": [
-            "[concat('Microsoft.Compute/virtualMachines/extensions/','/srPrep')]"
+            "[concat('Microsoft.Compute/virtualMachines/',variables('vmNamePrefix'),'/extensions/srPrep')]"
           ],
             "properties": {
                 "publisher": "Microsoft.Powershell",
