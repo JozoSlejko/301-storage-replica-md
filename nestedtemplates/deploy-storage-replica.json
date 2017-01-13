@@ -88,10 +88,10 @@
     },
     "variables": {
         "apiVersionStorage": "2016-01-01",
-        "vmNamePrefix": "[concat(parameters('namePrefix'),'-sr-tgt')]",
+        "vmNamePrefix": "[concat(parameters('namePrefix'),'-sr-dest')]",
         "vmTemplateURL": "[concat(parameters('_artifactsLocation'),'/nestedtemplates/newVM.json',parameters('_artifactsLocationSasToken'))]",
-        "srTgtModulesURL": "[concat(parameters('_artifactsLocation'),'/dsc/SRtgt.ps1.zip',parameters('_artifactsLocationSasToken'))]",
-        "srTgtFunction": "SRtgt.ps1\\SRtgt"
+        "srDestModulesURL": "[concat(parameters('_artifactsLocation'),'/dsc/SRdest.ps1.zip',parameters('_artifactsLocationSasToken'))]",
+        "srDestFunction": "SRdest.ps1\\SRdest"
     },
     "resources": [
         {
@@ -167,7 +167,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(variables('vmNamePrefix'),'/SRtgt')]",
+            "name": "[concat(variables('vmNamePrefix'),'/SRdest')]",
             "apiVersion": "2015-06-15",
             "location": "[resourceGroup().location]",
           "dependsOn": [
@@ -179,8 +179,8 @@
                 "typeHandlerVersion": "2.20",
                 "autoUpgradeMinorVersion": true,
                 "settings": {
-                    "modulesUrl": "[variables('srTgtModulesURL')]",
-                    "configurationFunction": "[variables('srTgtFunction')]",
+                    "modulesUrl": "[variables('srDestModulesURL')]",
+                    "configurationFunction": "[variables('srDestFunction')]",
                     "properties": {
                         "domainName": "[parameters('domainName')]",
                         "adminCreds": {

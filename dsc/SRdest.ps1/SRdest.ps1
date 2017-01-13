@@ -2,7 +2,7 @@
 # CopyrightMicrosoft Corporation. All rights reserved."
 #
 
-configuration SRtgt
+configuration SRdest
 {
     param
     (
@@ -35,6 +35,24 @@ configuration SRtgt
         WindowsFeature FS
         {
             Name = "FS-FileServer"
+            Ensure = "Present"
+        }
+
+        WindowsFeature SR
+        {
+            Name = "Storage-Replica"
+            Ensure = "Present"
+        }
+
+        WindowsFeature SRPS
+        {
+            Name = "RSAT-Storage-Replica"
+            Ensure = "Present"
+        }
+
+        WindowsFeature SMBBandwidth
+        {
+            Name = "FS-SMBBW"
             Ensure = "Present"
         }
 
