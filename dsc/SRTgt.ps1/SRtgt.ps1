@@ -11,7 +11,6 @@ configuration SRtgt
 
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$AdminCreds,
-
         
         [String]$DomainNetbiosName=(Get-NetBIOSName -DomainName $DomainName),
 
@@ -26,12 +25,6 @@ configuration SRtgt
 
     Node localhost
     {
-
-        WindowsFeature FCPS
-        {
-            Name = "RSAT-Clustering-PowerShell"
-            Ensure = "Present"
-        }
 
         WindowsFeature ADPS
         {
