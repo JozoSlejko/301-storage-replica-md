@@ -95,7 +95,8 @@
   },
   "variables": {
     "subnetRef": "[resourceId(parameters('existingVirtualNetworkRGName'),'Microsoft.Network/virtualNetworks/subnets',parameters('existingVirtualNetworkName'),parameters('existingSubnetName'))]",
-    "deployStorageReplicaTemplateURL": "[concat(parameters('_artifactsLocation'),'/nestedtemplates/deploy-storage-replica.json',parameters('_artifactsLocationSasToken'))]",
+//    "deployStorageReplicaTemplateURL": "[concat(parameters('_artifactsLocation'),'/nestedtemplates/deploy-storage-replica.json',parameters('_artifactsLocationSasToken'))]",
+    "deployStorageReplicaTemplateURL": "[concat(parameters('_artifactsLocation'),'/nestedtemplates/deploy-dsc-test.json',parameters('_artifactsLocationSasToken'))]",
     "deployStorageReplica": "deployStorageReplica"
   },
   "resources": [
