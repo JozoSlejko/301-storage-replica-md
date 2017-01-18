@@ -15,10 +15,17 @@ configuration SRdest
         [String]$DomainNetbiosName=(Get-NetBIOSName -DomainName $DomainName),
 
         [Int]$RetryCount=20,
-        [Int]$RetryIntervalSec=30
+        [Int]$RetryIntervalSec=30,
+        [Int]$SRDataSize=512,
+        [Int]$SRLogSize=256,
+        [String]$DataVolume='E',
+        [String]$LogVolume='F',
+        [String]$DataVolumeLabel='Data',
+        [String]$LogVolumeLabel='Log'
+
     )
 
-    Import-DscResource -ModuleName xComputerManagement,xActiveDirectory
+    Import-DscResource -ModuleName xComputerManagement,xActiveDirectory,xSR 
 
     [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetbiosName}\$($Admincreds.UserName)", $Admincreds.Password)
     [System.Management.Automation.PSCredential]$DomainFQDNCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
@@ -73,6 +80,30 @@ configuration SRdest
             DependsOn = "[xWaitForADDomain]DscForestWait"
         }
 
+        Script EnableSRDestination
+        {
+            SetScript = "New-StoragePool -FriendlyName S2D -PhysicalDisks (Get-PhysicalDisk -CanPool $True) -StorageSubSystemFriendlyName *"
+            TestScript = "(Get-StoragePool -FriendlyName S2D -ErrorAction SilentlyContinue).HealthStatus -eq 'Healthy'"
+            GetScript = "@{Ensure = if ((Get-StoragePool -FriendlyName S2D -ErrorAction SilentlyContinue).ShareState -eq 'Online') {'Present'} Else {'Absent'}}"
+	        DependsOn = "[xComputer]DomainJoin"
+        }
+
+        Script CreateSRDataVolume
+        {
+            SetScript = "New-Volume -StoragePoolFriendlyName S2D* -FriendlyName $DataVolumeLabel -FileSystem REFS -Size $($SRDataSize*1024*1024*1024) -DriveLetter $DataVolume"
+            TestScript = "(Get-Volume -FileSystemLabel $DataVolumeLabel -ErrorAction SilentlyContinue).HealthStatus -eq 'Healthy'"
+            GetScript = "@{Ensure = if ((Get-Volume -Name $DataVolumeLabel -ErrorAction SilentlyContinue).ShareState -eq 'Online') {'Present'} Else {'Absent'}}"
+	        DependsOn = "[Script]EnableSRDestionation"
+        }
+
+        Script CreateSRLogVolume
+        {
+            SetScript = "New-Volume -StoragePoolFriendlyName S2D* -FriendlyName $LogVolumeLabel -FileSystem REFS -Size $($SRLogSize*1024*1024*1024) -DriveLetter $LogVolume"
+            TestScript = "(Get-Volume -FileSystemLabel $LogVolumeLabel -ErrorAction SilentlyContinue).HealthStatus -eq 'Healthy'"
+            GetScript = "@{Ensure = if ((Get-Volume -Name $LogVolumeLabel -ErrorAction SilentlyContinue).ShareState -eq 'Online') {'Present'} Else {'Absent'}}"
+	        DependsOn = "[Script]CreateSRDataVolume"
+        }
+
         LocalConfigurationManager 
         {
             RebootNodeIfNeeded = $True
@@ -103,4 +134,4 @@ function Get-NetBIOSName
             return $DomainName
         }
     }
-}
+} 
