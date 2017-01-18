@@ -93,7 +93,7 @@ configuration SRdest
             SetScript = "New-Volume -StoragePoolFriendlyName S2D* -FriendlyName $DataVolumeLabel -FileSystem REFS -Size $($SRDataSize*1024*1024*1024) -DriveLetter $DataVolume"
             TestScript = "(Get-Volume -FileSystemLabel $DataVolumeLabel -ErrorAction SilentlyContinue).HealthStatus -eq 'Healthy'"
             GetScript = "@{Ensure = if ((Get-Volume -Name $DataVolumeLabel -ErrorAction SilentlyContinue).ShareState -eq 'Online') {'Present'} Else {'Absent'}}"
-	        DependsOn = "[Script]EnableSRDestionation"
+	        DependsOn = "[Script]EnableSRDestination"
         }
 
         Script CreateSRLogVolume
