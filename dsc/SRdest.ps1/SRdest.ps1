@@ -80,21 +80,20 @@ configuration SRdest
             DependsOn = "[xWaitForADDomain]DscForestWait"
         }
 
-#        Script EnableSRDestination
-#        {
-#            SetScript = "New-StoragePool -FriendlyName S2D -PhysicalDisks (Get-PhysicalDisk -CanPool $True) -StorageSubSystemFriendlyName *"
-#            TestScript = "(Get-StoragePool -FriendlyName S2D -ErrorAction SilentlyContinue).HealthStatus -eq 'Healthy'"
-#            GetScript = "@{Ensure = if ((Get-StoragePool -FriendlyName S2D -ErrorAction SilentlyContinue).ShareState -eq 'Online') {'Present'} Else {'Absent'}}"
-#	        DependsOn = "[xComputer]DomainJoin"
-#        }
+        Script EnableSRDestination
+        {
+            SetScript = "New-StoragePool -FriendlyName S2D -PhysicalDisks (Get-PhysicalDisk -CanPool $True) -StorageSubSystemFriendlyName *"
+            TestScript = "(Get-StoragePool -FriendlyName S2D -ErrorAction SilentlyContinue).HealthStatus -eq 'Healthy'"
+            GetScript = "@{Ensure = if ((Get-StoragePool -FriendlyName S2D -ErrorAction SilentlyContinue).ShareState -eq 'Online') {'Present'} Else {'Absent'}}"
+	        DependsOn = "[xComputer]DomainJoin"
+        }
 
         Script CreateSRDataVolume
         {
             SetScript = "New-Volume -StoragePoolFriendlyName S2D* -FriendlyName $DataVolumeLabel -FileSystem REFS -Size $($SRDataSize*1024*1024*1024) -DriveLetter $DataVolume"
             TestScript = "(Get-Volume -FileSystemLabel $DataVolumeLabel -ErrorAction SilentlyContinue).HealthStatus -eq 'Healthy'"
             GetScript = "@{Ensure = if ((Get-Volume -Name $DataVolumeLabel -ErrorAction SilentlyContinue).ShareState -eq 'Online') {'Present'} Else {'Absent'}}"
-	        DependsOn = "[xComputer]DomainJoin"
-#	        DependsOn = "[Script]EnableSRDestination"
+	        DependsOn = "[Script]EnableSRDestination"
         }
 
         Script CreateSRLogVolume
