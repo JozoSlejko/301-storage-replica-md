@@ -25,12 +25,12 @@ configuration SRdest
 
     )
 
-    Import-DscResource -ModuleName xComputerManagement,xActiveDirectory,xSR,xSQL,PSDesiredStateConfiguration 
+    Import-DscResource -ModuleName xComputerManagement,xActiveDirectory,xSR,xSQL
 
     [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetbiosName}\$($Admincreds.UserName)", $Admincreds.Password)
     [System.Management.Automation.PSCredential]$DomainFQDNCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
-    $RebootVirtualMachine = $false
+#    $RebootVirtualMachine = $false
 
     Node localhost
     {
@@ -82,15 +82,15 @@ configuration SRdest
             DependsOn = "[xWaitForADDomain]DscForestWait"
         }
 
-        xSqlCreateVirtualDataDisk NewVirtualDisk
-        {
-            NumberOfDisks = $NumberOfDisks
-            NumberOfColumns = $NumberOfDisks
-            DiskLetter = $NextAvailableDiskLetter
-            OptimizationType = $WorkloadType
-            StartingDeviceID = 2
-            RebootVirtualMachine = $RebootVirtualMachine
-        }
+#        xSqlCreateVirtualDataDisk NewVirtualDisk
+#        {
+#            NumberOfDisks = $NumberOfDisks
+#            NumberOfColumns = $NumberOfDisks
+#            DiskLetter = $NextAvailableDiskLetter
+#            OptimizationType = $WorkloadType
+#            StartingDeviceID = 2
+#            RebootVirtualMachine = $RebootVirtualMachine
+#        }
 
         LocalConfigurationManager 
         {
