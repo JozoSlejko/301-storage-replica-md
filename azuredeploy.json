@@ -93,7 +93,7 @@
     "logVolumeSize": {
       "type": "int",
       "metadata": {
-        "description": "Volume must be at least 9GB and of identical size on the source and destination computer."
+        "description": "Size of source log volume in GB. Volume must be at least 9GB and of identical size on the source and destination computer."
       }
     },
     "logVolumeAllocationUnitSize": {
@@ -111,7 +111,7 @@
     "dataVolumeSize": {
       "type": "int",
       "metadata": {
-        "description": "Volume must be of identical size on the source and destination computer."
+        "description": "Size of source data volume in GB. Volume must be of identical size on the source and destination computer."
       }
     },
     "dataVolumeAllocationUnitSize": {

@@ -104,32 +104,32 @@ configuration SRdest
         }
 
  
-         xSRCreateReplicaDestination CreateDestination
-        {
-            NumberOfDisks = $NumberOfDisks
-            NumberOfColumns = $NumberOfDisks
-            LogVolumeLetter = $LogVolumeLetter
-            LogVolumeSize = $LogVolumeSize
-            LogVolumeAllocationUnitSize = $LogVolumeAllocationUnitSize
-            DataVolumeLetter = $DataVolumeLetter
-            DataVolumeSize = $DataVolumeSize
-            DataVolumeAllocationUnitSize = $DataVolumeAllocationUnitSize
-            StartingDeviceID = 2
-            DependsOn = "[xComputer]DomainJoin" 
-        }
+#         xSRCreateReplicaDestination CreateDestination
+#        {
+#            NumberOfDisks = $NumberOfDisks
+#            NumberOfColumns = $NumberOfDisks
+#            LogVolumeLetter = $LogVolumeLetter
+#            LogVolumeSize = $LogVolumeSize
+#            LogVolumeAllocationUnitSize = $LogVolumeAllocationUnitSize
+#            DataVolumeLetter = $DataVolumeLetter
+#            DataVolumeSize = $DataVolumeSize
+#            DataVolumeAllocationUnitSize = $DataVolumeAllocationUnitSize
+#            StartingDeviceID = 2
+#            DependsOn = "[xComputer]DomainJoin" 
+#        }
 
-        xSRComputerPartnerShip CreateComputerPartership
-        {
-            SourceComputerName = $SourceComputerName
-            SourceLogVolume = $LogVolumeLetter
-            SourceDataVolume = $DataVolumeLetter
-            DestinationComputerName = $env:COMPUTERNAME
-            DestinationLogVolume = $LogVolumeLetter
-            DestinationDataVolume = $DataVolumeLetter
-            ReplicationMode = $ReplicationMode
-            AsyncRPO = $AsyncRPO
-            DomainAdministratorCredential = $DomainCreds
-        }
+#        xSRComputerPartnerShip CreateComputerPartership
+#        {
+#            SourceComputerName = $SourceComputerName
+#            SourceLogVolume = $LogVolumeLetter
+#            SourceDataVolume = $DataVolumeLetter
+#            DestinationComputerName = $env:COMPUTERNAME
+#            DestinationLogVolume = $LogVolumeLetter
+#            DestinationDataVolume = $DataVolumeLetter
+#            ReplicationMode = $ReplicationMode
+#            AsyncRPO = $AsyncRPO
+#            DomainAdministratorCredential = $DomainCreds
+#        }
 
 
     }

@@ -38,7 +38,7 @@
     "vmSize": {
       "type": "string",
       "metadata": {
-        "description": "Size of the S2D VMs to be created"
+        "description": "Size of the Storage Replica VM to be created"
       }
     },
     "enableAcceleratedNetworking": {
