@@ -28,7 +28,7 @@ function Get-TargetResource
         [string] $ReplicationMode,
 
         [parameter(Mandatory)]
-        [uint32] $AsyncRPO,
+        [Uint32] $AsyncRPO,
 
         [parameter(Mandatory)]
         [PSCredential] $DomainAdministratorCredential
@@ -78,14 +78,14 @@ function Set-TargetResource
         [string] $ReplicationMode,
 
         [parameter(Mandatory)]
-        [uint32] $AsyncRPO,
+        [Uint32] $AsyncRPO,
 
         [parameter(Mandatory)]
         [PSCredential] $DomainAdministratorCredential
     )
  
     $SourceRGName = GenerateRGName -ComputerName $SourceComputerName
-    $DestinationRGName = GenerateRGName -ComputerName $DestinationRGName
+    $DestinationRGName = GenerateRGName -ComputerName $DestinationComputerName
 
     try
     {
