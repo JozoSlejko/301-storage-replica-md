@@ -37,7 +37,7 @@ function Get-TargetResource
     try
     {
         ($oldToken, $context, $newToken) = ImpersonateAs -cred $DomainAdministratorCredential
-        $retvalue = @{Ensure = if (((Get-Volume -DriveLetter F -ErrorAction SilentlyContinue).DriveLetter -eq 'F') -and ((Get-Volume -DriveLetter G -ErrorAction SilentlyContinue).DriveLetter -eq 'G')) {'Present'} Else {'Absent'}}
+        $retvalue = @{Ensure = if (((Get-Volume -DriveLetter $DestinationLogVolume -ErrorAction SilentlyContinue).DriveLetter -eq $DestinationLogVolume) -and ((Get-Volume -DriveLetter $DestinationDataVolume -ErrorAction SilentlyContinue).DriveLetter -eq $DestinationDataVolume)) {'Present'} Else {'Absent'}}
     }
     finally
     {
@@ -139,7 +139,7 @@ function Test-TargetResource
     try
     {
         ($oldToken, $context, $newToken) = ImpersonateAs -cred $DomainAdministratorCredential
-        $retvalue = @{Ensure = if (((Get-Volume -DriveLetter F -ErrorAction SilentlyContinue).DriveLetter -eq 'F') -and ((Get-Volume -DriveLetter G -ErrorAction SilentlyContinue).DriveLetter -eq 'G')) {'Present'} Else {'Absent'}}
+        $retvalue = @{Ensure = if (((Get-Volume -DriveLetter $DestinationLogVolume -ErrorAction SilentlyContinue).DriveLetter -eq $DestinationLogVolume) -and ((Get-Volume -DriveLetter $DestinationDataVolume -ErrorAction SilentlyContinue).DriveLetter -eq $DestinationDataVolume)) {'Present'} Else {'Absent'}}
     }
     finally
     {
