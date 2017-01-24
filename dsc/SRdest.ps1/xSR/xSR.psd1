@@ -1,9 +1,9 @@
 ﻿@{
 # Version number of this module.
-ModuleVersion = '1.0'
+ModuleVersion = '1.1'
 
 # ID used to uniquely identify this module
-GUID = '7fa46490-517c-40c4-9ab4-dd3d169e6704'
+GUID = '7fa46490-517c-40c4-9ab4-dd3d169e6705'
 
 # Author of this module
 Author = 'KeithMayer.com'

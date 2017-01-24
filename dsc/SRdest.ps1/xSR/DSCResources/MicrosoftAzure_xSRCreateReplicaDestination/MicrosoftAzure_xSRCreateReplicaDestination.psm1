@@ -1,5 +1,5 @@
 #
-# xSqlCreateVirtualDataDisk: DSC resource to create a virtual data disk 
+# xSRCreateReplicaDestination: DSC resource to create Storage Replication destination with Storage Pool
 #
 
 function Get-TargetResource
@@ -14,34 +14,56 @@ function Get-TargetResource
         [ValidateNotNullOrEmpty()]
         [System.Uint32]
         $NumberOfColumns = 0,
+
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $LogVolumeLetter,
+
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $LogVolumeSize,
+
+        [parameter(Mandatory = $true)]
+        [System.Uint64]
+        $LogVolumeAllocationUnitSize,
         
         [parameter(Mandatory = $true)]
-        [System.String]$DiskLetter,
+        [System.String]
+        $DataVolumeLetter,
 
         [parameter(Mandatory = $true)]
-        [System.String]$OptimizationType,
+        [System.String]
+        $DataVolumeSize,
 
         [parameter(Mandatory = $true)]
-        [System.Uint32]$StartingDeviceID,
+        [System.Uint64]
+        $DataVolumeAllocationUnitSize,
+
+        [parameter(Mandatory = $true)]
+        [System.Uint32]
+        $StartingDeviceID,
 
         [ValidateNotNullOrEmpty()]
         [Bool]$RebootVirtualMachine = $false 
     )
     
-    $bConfigured = Test-TargetResource -NumberOfDisks $NumberOfDisks -NumberOfColumns $NumberOfColumns -DiskLetter $DiskLetter -OptimizationType $OptimizationType -RebootVirtualMachine $RebootVirtualMachine
+    $bConfigured = Test-TargetResource -NumberOfDisks $NumberOfDisks -NumberOfColumns $NumberOfColumns -LogVolumeLetter $LogVolumeLetter -LogVolumeSize $LogVolumeSize -LogVolumeAllocationUnitSize $LogVolumeAllocationUnitSize -DataVolumeLetter $DataVolumeLetter -DataVolumeSize $DataVolumeSize -DataVolumeAllocationUnitSize $DataVolumeAllocationUnitSize -RebootVirtualMachine $RebootVirtualMachine
 
     $retVal = @{
         NumberOfDisks = $NumberOfDisks
         NumberOfColumns = $NumberOfColumns
-        DiskLetter = $DiskLetter
-        OptimizationType = $OptimizationType
+        LogVolumeLetter = $LogVolumeLetter
+        LogVolumeSize = $LogVolumeSize
+        LogVolumeAllocationUnitSize = $LogVolumeAllocationUnitSize
+        DataVolumeLetter = $DataVolumeLetter
+        DataVolumeSize = $DataVolumeSize
+        DataVolumeAllocationUnitSize = $DataVolumeAllocationUnitSize
         StartingDeviceID = $StartingDeviceID
         RebootVirtualMachine = $RebootVirtualMachine
     }
 
     $retVal
 }
-
 
 function Test-TargetResource
 {
@@ -55,15 +77,34 @@ function Test-TargetResource
         [ValidateNotNullOrEmpty()]
         [System.Uint32]
         $NumberOfColumns = 0,
+
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $LogVolumeLetter,
+
+        [parameter(Mandatory = $true)]
+        [System.Uint64]
+        $LogVolumeSize,
+
+        [parameter(Mandatory = $true)]
+        [System.Uint64]
+        $LogVolumeAllocationUnitSize,
         
         [parameter(Mandatory = $true)]
-        [System.String]$DiskLetter,
+        [System.String]
+        $DataVolumeLetter,
 
         [parameter(Mandatory = $true)]
-        [System.String]$OptimizationType,
+        [System.Uint64]
+        $DataVolumeSize,
 
         [parameter(Mandatory = $true)]
-        [System.Uint32]$StartingDeviceID,
+        [System.Uint64]
+        $DataVolumeAllocationUnitSize,
+
+        [parameter(Mandatory = $true)]
+        [System.Uint32]
+        $StartingDeviceID,
 
         [ValidateNotNullOrEmpty()]
         [Bool]$RebootVirtualMachine = $false 
@@ -73,22 +114,27 @@ function Test-TargetResource
 
     Try 
     {
-        if (Get-volume -DriveLetter $DiskLetter -ErrorAction SilentlyContinue) 
+        if (Get-volume -DriveLetter $LogVolumeLetter -ErrorAction SilentlyContinue)
         {
-            Write-Verbose "'$($DiskLetter)' exists on target."
-
+            Write-Verbose "'$($LogVolumeLetter)' exists on target."
             $result = $true
+            $ExistingDrive = $LogVolumeLetter
+        }
+        elseif (Get-volume -DriveLetter $DataVolumeLetter -ErrorAction SilentlyContinue)
+        {
+            Write-Verbose "'$($DataVolumeLetter)' exists on target."
+            $result = $true
+            $ExistingDrive = $DataVolumeLetter
         }
         else
         {
-            Write-Verbose "'$($DiskLetter)' not Found."
-
+            Write-Verbose "'Log and Data drives not found on target."
             $result = $false
         }
     }
     Catch 
     {
-        throw "An error occured getting the '$($DiskLetter)' drive informations. Error: $($_.Exception.Message)"
+        throw "An error occured getting the '$($ExistingDrive)' drive informations. Error: $($_.Exception.Message)"
     }
 
     $result    
@@ -105,15 +151,34 @@ function Set-TargetResource
         [ValidateNotNullOrEmpty()]
         [System.Uint32]
         $NumberOfColumns = 0,
+
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $LogVolumeLetter,
+
+        [parameter(Mandatory = $true)]
+        [System.Uint64]
+        $LogVolumeSize,
+
+        [parameter(Mandatory = $true)]
+        [System.Uint64]
+        $LogVolumeAllocationUnitSize,
         
         [parameter(Mandatory = $true)]
-        [System.String]$DiskLetter,
+        [System.String]
+        $DataVolumeLetter,
 
         [parameter(Mandatory = $true)]
-        [System.String]$OptimizationType,
+        [System.Uint64]
+        $DataVolumeSize,
 
         [parameter(Mandatory = $true)]
-        [System.Uint32]$StartingDeviceID,
+        [System.Uint64]
+        $DataVolumeAllocationUnitSize,
+
+        [parameter(Mandatory = $true)]
+        [System.Uint32]
+        $StartingDeviceID,
 
         [ValidateNotNullOrEmpty()]
         [Bool]$RebootVirtualMachine = $false 
@@ -131,28 +196,15 @@ function Set-TargetResource
     {
         $global:DSCMachineStatus = 1
     }
-    
-    #Validtion OptimizationType
-    if(($OptimizationType.ToUpper().CompareTo("OLTP") -eq 1) -and ($OptimizationType.ToUpper().CompareTo("GENERAL") -eq 1) -and ($OptimizationType.ToUpper().CompareTo("DW") -eq 1))
-    {
-        Write-Error "OptimizationType $($OptimizationType) is not recognized, exiting..."
-        return $false
-    }
-    
-    # Setting up the Interleave size based on OptimizationType
-    $InterleaveSizeInByte = 262144
-    
-    if($OptimizationType.ToUpper().CompareTo("OLTP") -eq 0)
-    {
-       $InterleaveSizeInByte = 65536
-    }
 
-    #Generating VirtualDiskName/StoragePoolName/VoulumeLabelName
-    $NewVirtualDiskName = GenerateVirtualDiskName
-
+    #Generating VirtualDiskName/StoragePoolName/VolumeLabelName
     $NewStoragePoolName = GenerateStoragePoolName
 
-    $NewVolumeLabelName = GenerateVolumeLabel
+    $NewVirtualDiskName = GenerateVirtualDiskName
+
+    $NewLogVolumeName = GenerateLogVolumeName
+
+    $NewDataVolumeName = GenerateDataVolumeName
 
     #Get Disks for storage pool
     $DisksForStoragePool = GetPhysicalDisks -DeviceID $StartingDeviceID -NumberOfDisks $NumberOfDisks
@@ -177,6 +229,15 @@ function Set-TargetResource
         return $false
     }
 
+    #Generate Storage Pool Size
+    #Generate Storage Pool Size
+    $PoolSizeInGB = 0
+    Foreach ($CanPool in $DisksForStoragePool)
+    {
+        $PoolSizeInGB = $PoolSizeInGB + ($CanPool.Size)
+    }  
+
+
     #Creating Storage Pool
     Write-Verbose "Creating Storage Pool $($NewStoragePoolName)"
  
@@ -187,86 +248,112 @@ function Set-TargetResource
         
     Write-Verbose "Storage Pool $($NewStoragePoolName) created successfully."        
     
-    #Creating Virtual Disk
+    #Creating Virtual Disk for Storage Replica
     Write-Verbose "Creating Virtual Disk $($NewVirtualDiskName)"
-    
+
+
     if ($NumberOfColumns -eq 0)
     {   
         Write-Verbose "Creating Virtual Disk $($NewVirtualDiskName) with AutoNumberOfColumns"
         
-        New-VirtualDisk -FriendlyName $NewVirtualDiskName -StoragePoolFriendlyName $NewStoragePoolName -UseMaximumSize -Interleave $InterleaveSizeInByte -AutoNumberOfColumns  -ResiliencySettingName Simple -ProvisioningType Fixed
-         
+        New-VirtualDisk -FriendlyName $NewVirtualDiskName -StoragePoolFriendlyName $NewStoragePoolName -Size $PoolSizeInGB -AutoNumberOfColumns -ResiliencySettingName Simple -ProvisioningType Thin 
     
     }
     else 
     {
         Write-Verbose "Creating Virtual Disk $($NewVirtualDiskName) with $($NumberOfColumns) number of columns"
         
-        New-VirtualDisk -FriendlyName $NewVirtualDiskName -StoragePoolFriendlyName $NewStoragePoolName -UseMaximumSize -Interleave $InterleaveSizeInByte -NumberOfColumns $NumberOfColumns -ResiliencySettingName Simple -ProvisioningType Fixed
+        New-VirtualDisk -FriendlyName $NewVirtualDiskName -StoragePoolFriendlyName $NewStoragePoolName -Size $PoolSizeInGB -NumberOfColumns $NumberOfColumns -ResiliencySettingName Simple -ProvisioningType Thin
      
     }
 
     #Validating Virtual Disk
     Verify-VirtualDisk -TimeOut 20
 
-    #Initializing Disk
+    #Initializing Virtual Disk 
     Write-Verbose "Initializing Virtual Disk $($NewVirtualDiskName)"
- 
-    Initialize-Disk -VirtualDisk (Get-VirtualDisk -FriendlyName $NewVirtualDiskName)
+
+    #Log and data disks must be initialized as GPT, not MBR 
+    Initialize-Disk -VirtualDisk (Get-VirtualDisk -FriendlyName $NewVirtualDiskName) -PartitionStyle GPT
        
-    #Creating Partition
     $diskNumber = ((Get-VirtualDisk -FriendlyName $NewVirtualDiskName | Get-Disk).Number)
  
-    Write-Verbose 'Creating Partition'
+    #Create Log Partition
+    Write-Verbose "Creating Log Partition $($NewLogVolumeName)"
+
+    $LogPartitionSize = $LogVolumeSize * 1024 * 1024 * 1024
  
-    New-Partition -DiskNumber $diskNumber -UseMaximumSize -DriveLetter $DiskLetter
+    New-Partition -DiskNumber $diskNumber -Size $LogPartitionSize -DriveLetter $LogVolumeLetter
     
-    Verify-Partition -TimeOut 20 
+    Verify-Partition -TimeOut 20 -DiskLetter $LogVolumeLetter
  
-    #Formatting Volume
-    Write-Verbose 'Formatting Volume and Assigning Drive Letter'
+    #Formatting Log Volume
+    Write-Verbose 'Formatting Log Volume'
     
     #All file systems that are used by Windows organize your hard disk based on cluster size (also known as allocation unit size). 
     #Cluster size represents the smallest amount of disk space that can be used to hold a file. 
     #When file sizes do not come out to an even multiple of the cluster size, additional space must be used to hold the file (up to the next multiple of the cluster size). On the typical hard disk partition, the average amount of space that is lost in this manner can be calculated by using the equation (cluster size)/2 * (number of files).  
-    #In our case, the largest possible size is 64TB so we make 16KB as the default size and based on calculation even there is 1 million files on this disk, the extra wasted size is about 4GB
-    Format-Volume -DriveLetter $DiskLetter -FileSystem NTFS -AllocationUnitSize 16384 -NewFileSystemLabel $NewVolumeLabelName -Confirm:$false -Force
+    Format-Volume -DriveLetter $LogVolumeLetter -FileSystem NTFS -AllocationUnitSize $LogVolumeAllocationUnitSize -NewFileSystemLabel $NewLogVolumeName -Confirm:$false -Force
 
-    Verify-Volume -TimeOut 20
+    Verify-Volume -TimeOut 20 -DiskLetter $LogVolumeLetter
+
+    #Create Data Partition
+    Write-Verbose "Creating Data Partition $($NewDataVolumeName)"
+
+    $DataPartitionSize = $DataVolumeSize * 1024 * 1024 * 1024
+ 
+    New-Partition -DiskNumber $diskNumber -Size $DataPartitionSize -DriveLetter $DataVolumeLetter
+    
+    Verify-Partition -TimeOut 20 -DiskLetter $DataVolumeLetter
+ 
+    #Formatting Data Volume
+    Write-Verbose 'Formatting Data Volume'
+    
+    #All file systems that are used by Windows organize your hard disk based on cluster size (also known as allocation unit size). 
+    #Cluster size represents the smallest amount of disk space that can be used to hold a file. 
+    #When file sizes do not come out to an even multiple of the cluster size, additional space must be used to hold the file (up to the next multiple of the cluster size). On the typical hard disk partition, the average amount of space that is lost in this manner can be calculated by using the equation (cluster size)/2 * (number of files).  
+    Format-Volume -DriveLetter $DataVolumeLetter -FileSystem NTFS -AllocationUnitSize $DataVolumeAllocationUnitSize -NewFileSystemLabel $NewDataVolumeName -Confirm:$false -Force
+
+    Verify-Volume -TimeOut 20 -DiskLetter $DataVolumeLetter
     
     return $true
 }
 
+function GenerateStoragePoolName
+{
+    $BaseName = 'S2D'
+
+    $NewName = $BaseName + ((Get-VirtualDisk | measure).Count + 1 )
+
+    return $NewName
+}
 
 function GenerateVirtualDiskName
 {
-    $BaseName = 'SQLVMVirtualDisk'
+    $BaseName = 'StorageReplica'
     
     $NewName = $BaseName + ((Get-VirtualDisk | measure).Count + 1 )
     
     return $NewName
 }
 
-
-function GenerateVolumeLabel
+function GenerateLogVolumeName
 {
-    $BaseName = 'SQLVMDATA'
+    $BaseName = 'SRLog'
     
     $NewName = $BaseName + ((Get-VirtualDisk | measure).Count + 1 )
     
     return $NewName
 }
 
-
-function GenerateStoragePoolName
+function GenerateDataVolumeName
 {
-    $BaseName = 'SQLVMStoragePool'
-
+    $BaseName = 'SRData'
+    
     $NewName = $BaseName + ((Get-VirtualDisk | measure).Count + 1 )
-
+    
     return $NewName
 }
-
 
 function GetPhysicalDisks
 {
@@ -315,7 +402,6 @@ function Verify-NewStoragePool{
     Write-Error "Unable to find Storage Pool $($NewStoragePoolName) after $($TimeOut)"
 }
 
-
 function Verify-VirtualDisk{
     param
     (
@@ -347,7 +433,11 @@ function Verify-Partition{
     (
         [parameter(Mandatory = $true)]
         [System.Uint32]
-        $TimeOut
+        $TimeOut,
+
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $DiskLetter
     )
 
    $timespan = new-timespan -Seconds $TimeOut
@@ -373,7 +463,11 @@ function Verify-Volume{
     (
         [parameter(Mandatory = $true)]
         [System.Uint32]
-        $TimeOut
+        $TimeOut,
+
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $DiskLetter
     )
 
    $timespan = new-timespan -Seconds $TimeOut

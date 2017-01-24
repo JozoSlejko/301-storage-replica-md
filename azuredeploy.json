@@ -78,6 +78,66 @@
         "description": "Name of the existing subnet in the existing VNET to which the S2D VMs should be deployed"
       }
     },
+    "sourceComputerName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Storage Replica source computer."
+      }
+    },
+    "logVolumeLetter": {
+      "type": "string",
+      "metadata": {
+        "description": "Log volume used by Storage Replica on the source computer. Volume must be formatted as GPT and must be of identical size on the source and destination."
+      }
+    },
+    "logVolumeSize": {
+      "type": "int",
+      "metadata": {
+        "description": "Volume must be at least 9GB and of identical size on the source and destination computer."
+      }
+    },
+    "logVolumeAllocationUnitSize": {
+      "type": "int",
+      "metadata": {
+        "description": "All log disks must have the same sector sizes."
+      }
+    },
+    "dataVolumeLetter": {
+      "type": "string",
+      "metadata": {
+        "description": "Data volume on the source computer protected by Storage Replica. Volume must be formatted as GPT."
+      }
+    },
+    "dataVolumeSize": {
+      "type": "int",
+      "metadata": {
+        "description": "Volume must be of identical size on the source and destination computer."
+      }
+    },
+    "dataVolumeAllocationUnitSize": {
+      "type": "int",
+      "metadata": {
+        "description": "All log disks must have the same sector sizes."
+      }
+    },
+    "replicationMode": {
+      "type": "string",
+      "defaultValue": "asynchronous",
+      "allowedValues": [
+        "asynchronous",
+        "synchronous"
+      ],
+      "metadata": {
+        "description": "Storage Replica replication mode."
+      }
+    },
+    "asyncRPO": {
+      "type": "int",
+      "minValue": 30,
+      "metadata": {
+        "description": "Value in seconds. Must be at least 30 seconds."
+      }
+    },
     "_artifactsLocation": {
       "type": "string",
       "metadata": {
@@ -137,6 +197,33 @@
           },
           "vmDiskCount": {
             "value": "[parameters('vmDiskCount')]"
+          },
+          "sourceComputerName": {
+            "value": "[parameters('sourceComputerName')]"
+          },
+          "logVolumeLetter": {
+            "value": "[parameters('logVolumeLetter')]"
+          },
+          "logVolumeSize": {
+            "value": "[parameters('logVolumeSize')]"
+          },
+          "logVolumeAllocationUnitSize": {
+            "value": "[parameters('logVolumeAllocationUnitSize')]"
+          },
+          "dataVolumeLetter": {
+            "value": "[parameters('dataVolumeLetter')]"
+          },
+          "dataVolumeSize": {
+            "value": "[parameters('dataVolumeSize')]"
+          },
+          "dataVolumeAllocationUnitSize": {
+            "value": "[parameters('dataVolumeAllocationUnitSize')]"
+          },
+          "replicationMode": {
+            "value": "[parameters('replicationMode')]"
+          },
+          "asyncRPO": {
+            "value": "[parameters('asyncRPO')]"
           },
           "_artifactsLocation": {
             "value": "[parameters('_artifactsLocation')]"

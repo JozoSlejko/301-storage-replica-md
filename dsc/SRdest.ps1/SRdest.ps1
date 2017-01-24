@@ -11,26 +11,47 @@ configuration SRdest
 
         [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$AdminCreds,
+
+        [parameter(Mandatory)]
+        [string] $SourceComputerName,
+
+        [Parameter(Mandatory)]
+        [Int]$NumberOfDisks,
+
+        [Parameter(Mandatory)]
+        [String]$LogVolumeLetter,
+
+        [Parameter(Mandatory)]
+        [Int]$LogVolumeSize,
+
+        [Parameter(Mandatory)]
+        [Int]$LogVolumeAllocationUnitSize,
+
+        [Parameter(Mandatory)]
+        [String]$DataVolumeLetter,
+
+        [Parameter(Mandatory)]
+        [Int]$DataVolumeSize,
+
+        [Parameter(Mandatory)]
+        [Int]$DataVolumeAllocationUnitSize,
+
+        [Parameter(Mandatory)]
+        [String]$ReplicationMode,
+
+        [Parameter(Mandatory)]
+        [Int]$AsyncRPO,
         
         [String]$DomainNetbiosName=(Get-NetBIOSName -DomainName $DomainName),
 
         [Int]$RetryCount=20,
-        [Int]$RetryIntervalSec=30,
-        [Int]$SRDataSize=512,
-        [Int]$SRLogSize=256,
-        [String]$DataVolume='E',
-        [String]$LogVolume='F',
-        [String]$DataVolumeLabel='Data',
-        [String]$LogVolumeLabel='Log'
-
+        [Int]$RetryIntervalSec=30        
     )
 
-    Import-DscResource -ModuleName xComputerManagement,xActiveDirectory,xSR,xSQL
+    Import-DscResource -ModuleName xComputerManagement,xActiveDirectory,xSR
 
     [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetbiosName}\$($Admincreds.UserName)", $Admincreds.Password)
     [System.Management.Automation.PSCredential]$DomainFQDNCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
-
-#    $RebootVirtualMachine = $false
 
     Node localhost
     {
@@ -71,7 +92,7 @@ configuration SRdest
             DomainUserCredential= $DomainCreds
             RetryCount = $RetryCount 
             RetryIntervalSec = $RetryIntervalSec 
-            DependsOn = "[WindowsFeature]ADPS"
+            DependsOn = "[WindowsFeature]SMBBandwidth"
         }
 
         xComputer DomainJoin
@@ -82,20 +103,34 @@ configuration SRdest
             DependsOn = "[xWaitForADDomain]DscForestWait"
         }
 
-#        xSqlCreateVirtualDataDisk NewVirtualDisk
-#        {
-#            NumberOfDisks = $NumberOfDisks
-#            NumberOfColumns = $NumberOfDisks
-#            DiskLetter = $NextAvailableDiskLetter
-#            OptimizationType = $WorkloadType
-#            StartingDeviceID = 2
-#            RebootVirtualMachine = $RebootVirtualMachine
-#        }
-
-        LocalConfigurationManager 
+ 
+         xSRCreateReplicaDestination CreateDestination
         {
-            RebootNodeIfNeeded = $True
+            NumberOfDisks = $NumberOfDisks
+            NumberOfColumns = $NumberOfDisks
+            LogVolumeLetter = $LogVolumeLetter
+            LogVolumeSize = $LogVolumeSize
+            LogVolumeAllocationUnitSize = $LogVolumeAllocationUnitSize
+            DataVolumeLetter = $DataVolumeLetter
+            DataVolumeSize = $DataVolumeSize
+            DataVolumeAllocationUnitSize = $DataVolumeAllocationUnitSize
+            StartingDeviceID = 2
+            DependsOn = "[xComputer]DomainJoin" 
         }
+
+        xSRComputerPartnerShip CreateComputerPartership
+        {
+            SourceComputerName = $SourceComputerName
+            SourceLogVolume = $LogVolumeLetter
+            SourceDataVolume = $DataVolumeLetter
+            DestinationComputerName = $env:COMPUTERNAME
+            DestinationLogVolume = $LogVolumeLetter
+            DestinationDataVolume = $DataVolumeLetter
+            ReplicationMode = $ReplicationMode
+            AsyncRPO = $AsyncRPO
+            DomainAdministratorCredential = $DomainCreds
+        }
+
 
     }
 }
@@ -123,3 +158,5 @@ function Get-NetBIOSName
         }
     }
 } 
+
+SRdest

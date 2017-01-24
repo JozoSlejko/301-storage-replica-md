@@ -1,91 +1,151 @@
 ﻿{
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {
-        "namePrefix": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 8,
-            "metadata": {
-                "description": "Naming prefix for each new resource created. 3-char min, 8-char max, lowercase alphanumeric"
-            }
-        },
-        "domainName": {
-            "type": "string",
-            "metadata": {
-                "description": "DNS domain name for existing Active Directory domain"
-            }
-        },
-        "adminUsername": {
-            "type": "string",
-            "metadata": {
-                "description": "Name of the Administrator of the existing Active Directory Domain"
-            }
-        },
-        "adminPassword": {
-            "type": "securestring",
-            "minLength": 12,
-            "metadata": {
-                "description": "Password for the Administrator account of the existing Active Directory Domain"
-            }
-        },
-        "nicSubnetUri": {
-            "type": "string",
-            "metadata": {
-                "description": "Resource ID for existing vnet/subnet to which VM NICs should be attached"
-            }
-        },
-        "vmSize": {
-            "type": "string",
-            "metadata": {
-                "description": "Size of the S2D VMs to be created"
-            }
-        },
-        "enableAcceleratedNetworking": {
-            "type": "bool",
-            "metadata": {
-                "description": "Enable (true) or Disable (false) Accelerated Networking - if enabling, make sure you are selecting appropriate VM Size and Region"
-            }
-        },
-        "vmDiskSize": {
-            "type": "int",
-            "minValue": 128,
-            "maxValue": 1023,
-            "metadata": {
-                "description": "Size of each data disk in GB on each S2D VM (Min=128, Max=1023)"
-            }
-        },
-        "vmDiskCount": {
-            "type": "int",
-            "minValue": 2,
-            "maxValue": 32,
-            "metadata": {
-                "description": "Number of data disks on each S2D VM (Min=2, Max=32). Ensure that the VM size you've selected will support this number of data disks."
-            }
-        },
-        "imagePublisher": {
-            "type": "string",
-            "defaultValue": "MicrosoftWindowsServer"
-        },
-        "imageOffer": {
-            "type": "string",
-            "defaultValue": "WindowsServer"
-        },
-        "imageSKU": {
-            "type": "string",
-            "defaultValue": "2016-Datacenter"
-        },
-        "imageVersion": {
-            "type": "string",
-            "defaultValue": "latest"
-        },
-        "_artifactsLocation": {
-            "type": "string"
-        },
-        "_artifactsLocationSasToken": {
-            "type": "string"
-        }
+  "parameters": {
+    "namePrefix": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 8,
+      "metadata": {
+        "description": "Naming prefix for each new resource created. 3-char min, 8-char max, lowercase alphanumeric"
+      }
     },
+    "domainName": {
+      "type": "string",
+      "metadata": {
+        "description": "DNS domain name for existing Active Directory domain"
+      }
+    },
+    "adminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Administrator of the existing Active Directory Domain"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "minLength": 12,
+      "metadata": {
+        "description": "Password for the Administrator account of the existing Active Directory Domain"
+      }
+    },
+    "nicSubnetUri": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource ID for existing vnet/subnet to which VM NICs should be attached"
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "metadata": {
+        "description": "Size of the S2D VMs to be created"
+      }
+    },
+    "enableAcceleratedNetworking": {
+      "type": "bool",
+      "metadata": {
+        "description": "Enable (true) or Disable (false) Accelerated Networking - if enabling, make sure you are selecting appropriate VM Size and Region"
+      }
+    },
+    "vmDiskSize": {
+      "type": "int",
+      "minValue": 128,
+      "maxValue": 1023,
+      "metadata": {
+        "description": "Size of each data disk in GB on each S2D VM (Min=128, Max=1023)"
+      }
+    },
+    "vmDiskCount": {
+      "type": "int",
+      "minValue": 2,
+      "maxValue": 32,
+      "metadata": {
+        "description": "Number of data disks on each S2D VM (Min=2, Max=32). Ensure that the VM size you've selected will support this number of data disks."
+      }
+    },
+    "sourceComputerName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the Storage Replica source computer."
+      }
+    },
+    "logVolumeLetter": {
+      "type": "string",
+      "metadata": {
+        "description": "Log volume used by Storage Replica on the source computer. Volume must be formatted as GPT and must be of identical size on the source and destination."
+      }
+    },
+    "logVolumeSize": {
+      "type": "int",
+      "metadata": {
+        "description": "Volume must be at least 9GB and of identical size on the source and destination computer."
+      }
+    },
+    "logVolumeAllocationUnitSize": {
+      "type": "int",
+      "metadata": {
+        "description": "All log disks must have the same sector sizes."
+      }
+    },
+    "dataVolumeLetter": {
+      "type": "string",
+      "metadata": {
+        "description": "Data volume on the source computer protected by Storage Replica. Volume must be formatted as GPT."
+      }
+    },
+    "dataVolumeSize": {
+      "type": "int",
+      "metadata": {
+        "description": "Volume must be of identical size on the source and destination computer."
+      }
+    },
+    "dataVolumeAllocationUnitSize": {
+      "type": "int",
+      "metadata": {
+        "description": "All log disks must have the same sector sizes."
+      }
+    },
+    "replicationMode": {
+      "type": "string",
+      "defaultValue": "asynchronous",
+      "allowedValues": [
+        "asynchronous",
+        "synchronous"
+      ],
+      "metadata": {
+        "description": "Storage Replica replication mode."
+      }
+    },
+    "asyncRPO": {
+      "type": "int",
+      "minValue": 30,
+      "metadata": {
+        "description": "Value in seconds. Must be at least 30 seconds."
+      }
+    },
+    "imagePublisher": {
+      "type": "string",
+      "defaultValue": "MicrosoftWindowsServer"
+    },
+    "imageOffer": {
+      "type": "string",
+      "defaultValue": "WindowsServer"
+    },
+    "imageSKU": {
+      "type": "string",
+      "defaultValue": "2016-Datacenter"
+    },
+    "imageVersion": {
+      "type": "string",
+      "defaultValue": "latest"
+    },
+    "_artifactsLocation": {
+      "type": "string"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "string"
+    }
+  },
     "variables": {
         "apiVersionStorage": "2016-01-01",
         "vmNamePrefix": "[concat(parameters('namePrefix'),'-sr-dest')]",
@@ -182,12 +242,22 @@
                     "modulesUrl": "[variables('srDestModulesURL')]",
                     "configurationFunction": "[variables('srDestFunction')]",
                     "properties": {
-                        "domainName": "[parameters('domainName')]",
-                        "adminCreds": {
-                            "userName": "[parameters('adminUserName')]",
-                            "password": "PrivateSettingsRef:adminPassword"
-                        }
-                    }
+                      "DomainName": "[parameters('domainName')]",
+                      "AdminCreds": {
+                        "userName": "[parameters('adminUserName')]",
+                        "password": "PrivateSettingsRef:adminPassword"
+                      },
+                      "SourceComputerName": "[parameters('sourceComputerName')]",
+                      "NumberofDisks": "[parameters('vmDiskCount')]",
+                      "LogVolumeLetter": "[parameters('logVolumeLetter')]",
+                      "LogVolumeSize": "[parameters('logVolumeSize')]",
+                      "LogVolumeAllocationUnitSize": "[parameters('logVolumeAllocationUnitSize')]",
+                      "DataVolumeLetter": "[parameters('dataVolumeLetter')]",
+                      "DataVolumeSize": "[parameters('dataVolumeSize')]",
+                      "DataVolumeAllocationUnitSize": "[parameters('dataVolumeAllocationUnitSize')]",
+                      "ReplicationMode": "[parameters('replicationMode')]",
+                      "AsyncRPO": "[parameters('asyncRPO')]"
+                  }
                 },
                 "protectedSettings": {
                     "items": {
@@ -198,13 +268,5 @@
         }
     ],
     "outputs": {
-//        "sofsName": {
-//           "type": "string",
-//           "value": "[parameters('sofsName')]"
-//       },
-//        "shareName": {
-//            "type": "string",
-//            "value": "[parameters('shareName')]"
-//        }
     }
 }
