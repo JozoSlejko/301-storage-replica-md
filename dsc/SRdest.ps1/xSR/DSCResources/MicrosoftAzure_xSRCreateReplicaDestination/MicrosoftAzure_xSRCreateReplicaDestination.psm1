@@ -20,7 +20,7 @@ function Get-TargetResource
         $LogVolumeLetter,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [System.Uint64]
         $LogVolumeSize,
 
         [parameter(Mandatory = $true)]
@@ -32,7 +32,7 @@ function Get-TargetResource
         $DataVolumeLetter,
 
         [parameter(Mandatory = $true)]
-        [System.String]
+        [System.Uint64]
         $DataVolumeSize,
 
         [parameter(Mandatory = $true)]
@@ -47,7 +47,7 @@ function Get-TargetResource
         [Bool]$RebootVirtualMachine = $false 
     )
     
-    $bConfigured = Test-TargetResource -NumberOfDisks $NumberOfDisks -NumberOfColumns $NumberOfColumns -LogVolumeLetter $LogVolumeLetter -LogVolumeSize $LogVolumeSize -LogVolumeAllocationUnitSize $LogVolumeAllocationUnitSize -DataVolumeLetter $DataVolumeLetter -DataVolumeSize $DataVolumeSize -DataVolumeAllocationUnitSize $DataVolumeAllocationUnitSize -RebootVirtualMachine $RebootVirtualMachine
+    $bConfigured = Test-TargetResource -NumberOfDisks $NumberOfDisks -NumberOfColumns $NumberOfColumns -LogVolumeLetter $LogVolumeLetter -LogVolumeSize $LogVolumeSize -LogVolumeAllocationUnitSize $LogVolumeAllocationUnitSize -DataVolumeLetter $DataVolumeLetter -DataVolumeSize $DataVolumeSize -DataVolumeAllocationUnitSize $DataVolumeAllocationUnitSize -StartingDeviceID $StartingDeviceID -RebootVirtualMachine $RebootVirtualMachine
 
     $retVal = @{
         NumberOfDisks = $NumberOfDisks

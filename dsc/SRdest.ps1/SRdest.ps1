@@ -61,6 +61,12 @@ configuration SRdest
             Ensure = "Present"
         }
 
+        WindowsFeature ADPS
+        {
+            Name = "RSAT-AD-PowerShell"
+            Ensure = "Present"
+        }
+
         WindowsFeature SR
         {
             Name = "Storage-Replica"
@@ -76,12 +82,6 @@ configuration SRdest
         WindowsFeature SMBBandwidth
         {
             Name = "FS-SMBBW"
-            Ensure = "Present"
-        }
-
-        WindowsFeature ADPS
-        {
-            Name = "RSAT-AD-PowerShell"
             Ensure = "Present"
         }
 
@@ -128,6 +128,7 @@ configuration SRdest
             ReplicationMode = $ReplicationMode
             AsyncRPO = $AsyncRPO
             DomainAdministratorCredential = $DomainCreds
+            DependsOn = "[xSRCreateReplicaDestination]CreateDestination" 
         }
 
 
