@@ -158,5 +158,3 @@ function Get-NetBIOSName
         }
     }
 } 
-
-SRdest
