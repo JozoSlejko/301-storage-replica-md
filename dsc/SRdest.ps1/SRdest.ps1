@@ -49,7 +49,7 @@ configuration SRdest
     )
 
     Import-DscResource -ModuleName xComputerManagement,xActiveDirectory,xSR
-
+ 
     [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetbiosName}\$($Admincreds.UserName)", $Admincreds.Password)
     [System.Management.Automation.PSCredential]$DomainFQDNCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
 
@@ -91,17 +91,16 @@ configuration SRdest
             DomainUserCredential= $DomainCreds
             RetryCount = $RetryCount 
             RetryIntervalSec = $RetryIntervalSec 
-            DependsOn = "[WindowsFeature]ADPS"
+	        DependsOn = "[WindowsFeature]ADPS"
         }
-
+        
         xComputer DomainJoin
         {
             Name = $env:COMPUTERNAME
             DomainName = $DomainName
             Credential = $DomainCreds
-            DependsOn = "[xWaitForADDomain]DscForestWait"
+	        DependsOn = "[xWaitForADDomain]DscForestWait"
         }
-
  
          xSRCreateReplicaDestination CreateDestination
         {
@@ -157,4 +156,4 @@ function Get-NetBIOSName
             return $DomainName
         }
     }
-} 
+}

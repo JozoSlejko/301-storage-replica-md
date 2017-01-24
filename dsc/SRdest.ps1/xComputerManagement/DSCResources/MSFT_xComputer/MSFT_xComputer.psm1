@@ -59,36 +59,66 @@ function Set-TargetResource
             if ($DomainName -eq (GetComputerDomain))
             {
                 # Rename the computer, but stay joined to the domain.
+                Write-Verbose "Renaming the computer to '$($Name)'"
+                
                 Rename-Computer -NewName $Name -DomainCredential $Credential -Force
+                
                 Write-Verbose -Message "Renamed computer to '$($Name)'."
             }
             else
             {
                 if ($Name -ne $env:COMPUTERNAME)
                 {
-                    # Rename the comptuer, and join it to the domain.
+                    # Rename the computer, and join it to the domain.
                     if ($UnjoinCredential)
                     {
+                        Write-Verbose "Joining the Computer to '$($DomainName)' with new name '$($Name)' and UnjoinCredential"
+
                         Add-Computer -DomainName $DomainName -Credential $Credential -NewName $Name -UnjoinDomainCredential $UnjoinCredential -Force
+
+                        
                     }
                     else
                     {
+                        Write-Verbose "Joining the Computer to '$($DomainName)' with new name '$($Name)' and Credential"
+                        
                         Add-Computer -DomainName $DomainName -Credential $Credential -NewName $Name -Force
                     }
-                    Write-Verbose -Message "Renamed computer to '$($Name)' and added to the domain '$($DomainName)."
+
+                    Write-Verbose -Message "Renamed computer to '$($Name)' and added to the domain '$($DomainName)'."
                 }
                 else
                 {
                     # Same computer name, and join it to the domain.
                     if ($UnjoinCredential)
                     {
+                        Write-Verbose "Joining the Computer to '$($DomainName)' with UnjoinCredential"
+
                         Add-Computer -DomainName $DomainName -Credential $Credential -UnjoinDomainCredential $UnjoinCredential -Force
                     }
                     else
                     {
-                        Add-Computer -DomainName $DomainName -Credential $Credential -Force
+                        Write-Verbose "Joining the Computer to '$($DomainName)'"
+
+                        Write-Verbose "The machine is not a member of $DomainName."
+                        
+                        try
+                        {
+                            Write-Verbose "Checking if the machine is a member of $DomainName."
+                            if ($DomainName.ToLower() -eq (GetComputerDomain).ToLower()) 
+                            {
+                                Write-Verbose "The machine is a member of $DomainName."
+                            }
+                        }
+                        catch
+                        {
+                            Write-Verbose "The machine is not a member of $DomainName."
+                            
+                            Add-Computer -DomainName $DomainName -Credential $Credential -Force -ErrorAction Ignore
+                
+                            Write-Verbose -Message "Added computer to domain '$($DomainName)'."
+                        }
                     }
-                    Write-Verbose -Message "Added computer to domain '$($DomainName)."
                 }
             }
         }
@@ -207,18 +237,36 @@ function Test-TargetResource
         try
         {
             Write-Verbose "Checking if the machine is a member of $DomainName."
-            return ($DomainName.ToLower() -eq (GetComputerDomain).ToLower())
+            if ($DomainName.ToLower() -eq (GetComputerDomain).ToLower()) 
+                {
+                    Write-Verbose "The machine is a member of $DomainName."
+                    return $true
+                }
+            else
+                {
+                    Write-Verbose "The machine is not a member of $DomainName."
+                    return $false
+                }
         }
         catch
         {
-           Write-Verbose 'The machine is not a domain member.'
+           Write-Verbose "The machine is not a member of $DomainName."
            return $false
         }
     }
     elseif($WorkGroupName)
     {
         Write-Verbose -Message "Checking if workgroup name is $WorkGroupName"
-        return ($WorkGroupName -eq (gwmi WIN32_ComputerSystem).WorkGroup)
+        if ($WorkGroupName -eq (gwmi WIN32_ComputerSystem).WorkGroup)
+            {
+                Write-Verbose "The machine is a member of  work group $WorkGroupName."
+                return $true
+            }
+            else
+            {
+                Write-Verbose "The machine is not a member of workgroup $WorkGroupName."
+                return $false
+            }
     }
 }
 
