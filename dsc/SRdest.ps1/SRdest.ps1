@@ -55,13 +55,6 @@ configuration SRdest
 
     Node localhost
     {
-
-        WindowsFeature ADPS
-        {
-            Name = "RSAT-AD-PowerShell"
-            Ensure = "Present"
-        }
-
         WindowsFeature FS
         {
             Name = "FS-FileServer"
@@ -86,13 +79,19 @@ configuration SRdest
             Ensure = "Present"
         }
 
+        WindowsFeature ADPS
+        {
+            Name = "RSAT-AD-PowerShell"
+            Ensure = "Present"
+        }
+
         xWaitForADDomain DscForestWait 
         { 
             DomainName = $DomainName 
             DomainUserCredential= $DomainCreds
             RetryCount = $RetryCount 
             RetryIntervalSec = $RetryIntervalSec 
-            DependsOn = "[WindowsFeature]SMBBandwidth"
+            DependsOn = "[WindowsFeature]ADPS"
         }
 
         xComputer DomainJoin
