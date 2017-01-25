@@ -130,6 +130,10 @@ configuration SRdest
             DependsOn = "[xSRCreateReplicaDestination]CreateDestination" 
         }
 
+        LocalConfigurationManager 
+        {
+            RebootNodeIfNeeded = $true
+        }
 
     }
 }
