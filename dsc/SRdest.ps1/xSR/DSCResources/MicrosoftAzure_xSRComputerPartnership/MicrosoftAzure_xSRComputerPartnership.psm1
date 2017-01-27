@@ -33,11 +33,13 @@ function Get-TargetResource
         [parameter(Mandatory)]
         [PSCredential] $DomainAdministratorCredential
     )
-  
+    
+    $DataVolume = $DestinationDataVolume + ':\'
+
     try
     {
         ($oldToken, $context, $newToken) = ImpersonateAs -cred $DomainAdministratorCredential
-        $retvalue = @{Ensure = if (((Get-Volume -DriveLetter $DestinationLogVolume -ErrorAction SilentlyContinue).DriveLetter -eq $DestinationLogVolume) -and ((Get-Volume -DriveLetter $DestinationDataVolume -ErrorAction SilentlyContinue).DriveLetter -eq $DestinationDataVolume)) {'Present'} Else {'Absent'}}
+        $retvalue = @{Ensure = if (((Get-SRGroup -ErrorAction SilentlyContinue).Replicas).DataVolume -eq $DataVolume) {'Present'} Else {'Absent'}}
     }
     finally
     {
@@ -136,10 +138,12 @@ function Test-TargetResource
         [PSCredential] $DomainAdministratorCredential
     )
 
+    $DataVolume = $DestinationDataVolume + ':\'
+
     try
     {
         ($oldToken, $context, $newToken) = ImpersonateAs -cred $DomainAdministratorCredential
-        $retvalue = @{Ensure = if (((Get-Volume -DriveLetter $DestinationLogVolume -ErrorAction SilentlyContinue).DriveLetter -eq $DestinationLogVolume) -and ((Get-Volume -DriveLetter $DestinationDataVolume -ErrorAction SilentlyContinue).DriveLetter -eq $DestinationDataVolume)) {'Present'} Else {'Absent'}}
+        $retvalue = @{Ensure = if (((Get-SRGroup -ErrorAction SilentlyContinue).Replicas).DataVolume -eq $DataVolume) {'Present'} Else {'Absent'}}
     }
     finally
     {
