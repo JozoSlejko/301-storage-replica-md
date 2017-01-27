@@ -230,13 +230,11 @@ function Set-TargetResource
     }
 
     #Generate Storage Pool Size
-    #Generate Storage Pool Size
     $PoolSizeInGB = 0
     Foreach ($CanPool in $DisksForStoragePool)
     {
         $PoolSizeInGB = $PoolSizeInGB + ($CanPool.Size)
     }  
-
 
     #Creating Storage Pool
     Write-Verbose "Creating Storage Pool $($NewStoragePoolName)"
@@ -250,7 +248,6 @@ function Set-TargetResource
     
     #Creating Virtual Disk for Storage Replica
     Write-Verbose "Creating Virtual Disk $($NewVirtualDiskName)"
-
 
     if ($NumberOfColumns -eq 0)
     {   

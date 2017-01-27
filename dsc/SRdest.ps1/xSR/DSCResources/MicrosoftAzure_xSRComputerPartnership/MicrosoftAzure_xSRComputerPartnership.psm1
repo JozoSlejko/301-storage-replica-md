@@ -86,13 +86,14 @@ function Set-TargetResource
         [PSCredential] $DomainAdministratorCredential
     )
  
-    $SourceRGName = GenerateRGName -ComputerName $SourceComputerName
-    $DestinationRGName = GenerateRGName -ComputerName $DestinationComputerName
-
     try
     {
         ($oldToken, $context, $newToken) = ImpersonateAs -cred $DomainAdministratorCredential
-        New-SRPartnership -SourceComputerName $SourceComputerName -SourceRGName $SourceRGName -SourceVolumeName $SourceDataVolume -SourceLogVolumeName $SourceLogVolume -DestinationComputerName $DestinationComputerName -DestinationRGName $DestinationRGName -DestinationVolumeName $DestinationDataVolume -DestinationLogVolumeName $DestinationLogVolume -ReplicationMode $ReplicationMode -Seeded -AsyncRPO $AsyncRPO
+
+        $SourceRGName = GenerateRGName -ComputerName $SourceComputerName
+        $DestinationRGName = GenerateRGName -ComputerName $DestinationComputerName
+
+        New-SRPartnership -SourceComputerName $SourceComputerName -SourceRGName $SourceRGName -SourceVolumeName $SourceDataVolume -SourceLogVolumeName $SourceLogVolume -DestinationComputerName $DestinationComputerName -DestinationRGName $DestinationRGName -DestinationVolumeName $DestinationDataVolume -DestinationLogVolumeName $DestinationLogVolume -ReplicationMode $ReplicationMode -AsyncRPO $AsyncRPO
     }
     finally
     {

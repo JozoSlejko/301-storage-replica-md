@@ -43,8 +43,6 @@
 
     $VMDiskSize = 1023
 
-    $VMDiskCount = 2
-
     $DomainName = Read-Host -Prompt 'Input the Active Directory Domain name'
 
     $AdminCreds = Get-Credential -Message "Enter Admin Username and Password for existing AD Domain"
@@ -66,7 +64,6 @@
     $artifactsLocation = "https://raw.githubusercontent.com/albertwo1978/301-storage-replica-md/master"
 
     $artifactsLocationSasToken = ""
-
 
 #Specify deployment values for Storage Replica Destination
 
@@ -109,27 +106,31 @@
             -Title "Select a Subnet within the destination vNet." `
             -PassThru
 
-#    $SRSubnet =
-#        Get-AzureRmVirtualNetworkSubnetConfig `
-#          -VirtualNetwork $SRVnet `
-#          -Name $SRSubnetName
-
 #Specify source volume characteristics
 
     $SRSourceCIM = new-cimSession -ComputerName $SRSourceComputer
 
-    $SRDataVolumeSize = (Get-Partition -CimSession $SRSourceComputer -DriveLetter $SRSourceDataDrive).Size /1024 /1024 /1024
+    $SRDataVolumeSize = (Get-Partition -CimSession $SRSourceComputer -DriveLetter $SRSourceDataDrive).Size /1GB
 
-    $SRDataWMISession = "SELECT * FROM Win32_Volume " + "WHERE FileSystem='NTFS' and DriveLetter = '" + $SRSourceDataDrive + ":'"
-    $SRDataVolumeBytes = Get-WmiObject -Query $SRDataWMISession -ComputerName $SRSourceComputer | Select-Object BlockSize
-    $SRDataVolumeAllocationUnitSize = $SRDataVolumeBytes.BlockSize
+    $SRDataVolumeAllocationUnitSize = (Get-Volume -CimSession $SRSourceComputer -DriveLetter $SRSourceDataDrive).AllocationUnitSize
 
-    $SRLogVolumeSize = (Get-Partition -CimSession $SRSourceComputer -DriveLetter $SRSourceLogDrive).Size /1024 /1024 /1024
+    $SRLogVolumeSize = (Get-Partition -CimSession $SRSourceComputer -DriveLetter $SRSourceLogDrive).Size /1GB
 
-    $SRLogWMISession = "SELECT * FROM Win32_Volume " + "WHERE FileSystem='NTFS' and DriveLetter = '" + $SRSourceLogDrive + ":'"
-    $SRLogVolumeBytes = Get-WmiObject -Query $SRLogWMISession -ComputerName $SRSourceComputer | Select-Object BlockSize
-    $SRLogVolumeAllocationUnitSize = $SRLogVolumeBytes.BlockSize
+    $SRLogVolumeAllocationUnitSize = (Get-Volume -CimSession $SRSourceComputer -DriveLetter $SRSourceLogDrive).AllocationUnitSize
 
+#Add disks to match total volume size
+
+$VMDiskCount = 1
+
+Do{
+
+    $VMDiskCount = $VMDiskCount + 1
+
+    Write-Output $VMDiskCount
+
+    If($VMDiskCount -gt 32) {Write-Output "Total volume exceeds maximum disks for Azure Vitual Machine. Exiting script."; exit}
+
+} Until (($VMDiskSize * $VMDiskCount) -gt ($SRDataVolumeSize + $SRLogVolumeSize))
 
 #Define hash table for parameter values
 
@@ -157,28 +158,6 @@
         "_artifactsLocation" = "$artifactsLocation";
         "_artifactsLocationSasToken" = "$artifactsLocationSasToken"
     }
-
-write-host "$NamePrefix"
-write-host "$VMSize"
-write-host "$enableAcceleratedNetworking"
-write-host $VMDiskSize
-write-host $VMDiskCount
-write-host "$DomainName"
-write-host "$AdminUserName"
-write-host "$AdminPassword"
-write-host "$SRRGName"
-write-host "$SRVnetName"
-write-host "$SRSubnetName"
-write-host "$SRSourceComputer"
-write-host "$SRSourceLogDrive"
-write-host $SRLogVolumeSize
-write-host $SRLogVolumeAllocationUnitSize
-write-host "$SRSourceDataDrive"
-write-host $SRDataVolumeSize
-write-host $SRDataVolumeAllocationUnitSize
-write-host $SRAsyncRPO
-write-host "$artifactsLocation"
-write-host "$artifactsLocationSasToken"
 
 try
 {
