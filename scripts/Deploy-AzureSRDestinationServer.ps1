@@ -126,8 +126,6 @@ Do{
 
     $VMDiskCount = $VMDiskCount + 1
 
-    Write-Output $VMDiskCount
-
     If($VMDiskCount -gt 32) {Write-Output "Total volume exceeds maximum disks for Azure Vitual Machine. Exiting script."; exit}
 
 } Until (($VMDiskSize * $VMDiskCount) -gt ($SRDataVolumeSize + $SRLogVolumeSize))
