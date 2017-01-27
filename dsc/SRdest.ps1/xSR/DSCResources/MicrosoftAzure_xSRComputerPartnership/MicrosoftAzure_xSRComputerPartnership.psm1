@@ -143,7 +143,7 @@ function Test-TargetResource
     try
     {
         ($oldToken, $context, $newToken) = ImpersonateAs -cred $DomainAdministratorCredential
-        $retvalue = @{Ensure = if (((Get-SRGroup -ErrorAction SilentlyContinue).Replicas).DataVolume -eq $DataVolume) {'Present'} Else {'Absent'}}
+        $retvalue = (((Get-SRGroup -ErrorAction SilentlyContinue).Replicas).DataVolume -eq $DataVolume)
     }
     finally
     {
