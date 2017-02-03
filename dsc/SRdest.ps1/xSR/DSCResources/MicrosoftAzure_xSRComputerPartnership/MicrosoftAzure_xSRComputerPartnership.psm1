@@ -93,6 +93,8 @@ function Set-TargetResource
         $SourceRGName = GenerateRGName -ComputerName $SourceComputerName
         $DestinationRGName = GenerateRGName -ComputerName $DestinationComputerName
 
+        InstallSourceFeatures -ComputerName $SourceComputerName -TimeOut 300
+
         New-SRPartnership -SourceComputerName $SourceComputerName -SourceRGName $SourceRGName -SourceVolumeName $SourceDataVolume -SourceLogVolumeName $SourceLogVolume -DestinationComputerName $DestinationComputerName -DestinationRGName $DestinationRGName -DestinationVolumeName $DestinationDataVolume -DestinationLogVolumeName $DestinationLogVolume -ReplicationMode $ReplicationMode -AsyncRPO $AsyncRPO
     }
     finally
@@ -226,5 +228,39 @@ function GenerateRGName
 
     return $NewName
 }
+
+function InstallSourceFeatures
+{
+    param
+    (
+        [parameter(Mandatory = $true)]
+        [System.String]
+        $ComputerName,
+
+        [parameter(Mandatory = $true)]
+        [System.Uint32]
+        $TimeOut
+    )
+
+    Install-WindowsFeature -ComputerName $ComputerName -Name Storage-Replica,FS-FileServer -IncludeManagementTools -restart
+
+   $timespan = new-timespan -Seconds $TimeOut
+
+   $sw = [diagnostics.stopwatch]::StartNew()
+
+    while ($sw.elapsed -lt $timespan){
+        
+    $SourceOnline = Get-Service LANMANSERVER -ComputerName demo-sr-src -ErrorAction SilentlyContinue
+
+        if ($SourceOnline){
+            return $true
+        }
+ 
+        start-sleep -seconds 1
+    }
+ 
+    Write-Error "Storage Replica source computer $($ComputerName) unresponsive after $($TimeOut)"
+}
+
 
 Export-ModuleMember -Function *-TargetResource
