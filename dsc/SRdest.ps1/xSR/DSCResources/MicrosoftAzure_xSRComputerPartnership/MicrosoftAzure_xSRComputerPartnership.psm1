@@ -244,13 +244,13 @@ function InstallSourceFeatures
 
     Install-WindowsFeature -ComputerName $ComputerName -Name Storage-Replica,FS-FileServer -IncludeManagementTools -restart
 
-   $timespan = new-timespan -Seconds $TimeOut
+    $timespan = new-timespan -Seconds $TimeOut
 
-   $sw = [diagnostics.stopwatch]::StartNew()
+    $sw = [diagnostics.stopwatch]::StartNew()
 
     while ($sw.elapsed -lt $timespan){
         
-    $SourceOnline = Get-Service LANMANSERVER -ComputerName demo-sr-src -ErrorAction SilentlyContinue
+    $SourceOnline = Get-Service LANMANSERVER -ComputerName $ComputerName -ErrorAction SilentlyContinue
 
         if ($SourceOnline){
             return $true
