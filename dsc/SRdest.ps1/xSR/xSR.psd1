@@ -6,7 +6,7 @@ ModuleVersion = '1.1'
 GUID = '7fa46490-517c-40c4-9ab4-dd3d169e6705'
 
 # Author of this module
-Author = 'KeithMayer.com'
+Author = 'KeithMayer.com & albertwo@Microsoft.com'
 
 # Company or vendor of this module
 CompanyName = 'Microsoft Corporation'

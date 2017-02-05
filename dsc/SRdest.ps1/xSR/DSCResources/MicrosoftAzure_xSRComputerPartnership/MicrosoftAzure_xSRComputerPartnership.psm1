@@ -1,5 +1,5 @@
 ﻿#
-# xSRPartnership: DSC resource to configure a Storage Replica partnership. 
+# xSRComputerPartnership: DSC resource to configure a Storage Replica partnership. 
 #
 
 function Get-TargetResource
@@ -90,10 +90,10 @@ function Set-TargetResource
     {
         ($oldToken, $context, $newToken) = ImpersonateAs -cred $DomainAdministratorCredential
 
+        InstallSourceFeatures -ComputerName $SourceComputerName -TimeOut 300
+        
         $SourceRGName = GenerateRGName -ComputerName $SourceComputerName
         $DestinationRGName = GenerateRGName -ComputerName $DestinationComputerName
-
-        InstallSourceFeatures -ComputerName $SourceComputerName -TimeOut 300
 
         New-SRPartnership -SourceComputerName $SourceComputerName -SourceRGName $SourceRGName -SourceVolumeName $SourceDataVolume -SourceLogVolumeName $SourceLogVolume -DestinationComputerName $DestinationComputerName -DestinationRGName $DestinationRGName -DestinationVolumeName $DestinationDataVolume -DestinationLogVolumeName $DestinationLogVolume -ReplicationMode $ReplicationMode -AsyncRPO $AsyncRPO
     }
