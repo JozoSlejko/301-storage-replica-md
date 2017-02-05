@@ -1,11 +1,17 @@
-# Create a Storage Replica destination server with Windows Server 2016 on an existing VNET
+# Create a Storage Replica (SR) destination server with Windows Server 2016 on an existing VNET
 This template will create a Storage Replica destination copy on Windows Server 2016 in an existing VNET and Active Directory environment.
 
 This template creates the following resources by default:
 
 +	A Premium Storage Account for storing VM disks for each storage node
 +	A Windows Server 2016 server for the Storage Replica destination copy
++   A single disk Storage Pool for both the log and data volumes 
++   An SR Partnership with an existing Windows Server 2016 server
 
+This template assumes the following prerequisites on the Storage Replica source:
+
++   The source log and data volumes are formatted as GPT, not MBR
++   The source log volume is a minimum 9GB
 
 To deploy the required Azure VNET and Active Directory infrastructure, if not already in place, you may use <a href="https://github.com/Azure/azure-quickstart-templates/tree/master/active-directory-new-domain-ha-2-dc">this template</a> to deploy the prerequisite infrastructure. 
 
@@ -20,16 +26,16 @@ Click the button below to deploy from the portal:
 
 ## Notes
 
-+	The default settings for storage are to deploy using **premium storage**, which is **strongly** recommended for performance.  When using Premium Storage, be sure to select a VM size (DS-series, GS-series) that supports Premium Storage.
++	The default settings for both log and data volumes are to deploy using **premium storage**, which is **strongly** recommended for performance.  When using Premium Storage, be sure to select a VM size (DS-series, GS-series) that supports Premium Storage.
 
-+   The default settings deploy 2 data disks per storage node, but can be increased to up to 32 data disks per node.  When increasing # of data disks, be sure to select a VM size that can support the # of data disks you specify.
++   The default settings deploy 2 data disks, but should be increased to account for the total capacity needed for both the log and data volumes.  When increasing # of data disks, be sure to select a VM size that can support the # of data disks you specify.
 
 + 	The default settings for compute require that you have at least 2 cores of free quota to deploy.
 
 + 	The images used to create this deployment are
 	+ 	Windows Server 2016 Datacenter Edition - Latest Image
 
-+	To successfully deploy this template, be sure that the subnet to which the storage nodes are being deployed already exists on the specified Azure virtual network, AND this subnet should be defined in Active Directory Sites and Services for the appropriate AD site in which the closest domain controllers are configured.
++	To successfully deploy this template, be sure that the subnet to which the Storage Replica destination is being deployed already exists on the specified Azure virtual network, AND this subnet should be routable to BOTH the Storage Replica source and an Active Directory domain controller in the trusted Active Directory Domain.
 
 + SPECIAL THANKS to <a href="https://github.com/mmarch">@mmarch</a> on code contributions for dynamic data disk selection nested templates and <a href="https://github.com/robotechredmond">@robotechredmond</a> for the Storage Spaces Direct templates!
 
@@ -37,7 +43,7 @@ Click the button below to deploy from the portal:
 
 You can deploy these samples directly through the Azure Portal or by using the scripts supplied in the root of the repo.
 
-To deploy the sammple using the Azure Portal, click the **Deploy to Azure** button found above.
+To deploy the sample using the Azure Portal, click the **Deploy to Azure** button found above.
 
 To deploy the sample via the command line (using [Azure PowerShell or the Azure CLI](https://azure.microsoft.com/en-us/downloads/)) you can use the scripts.
 
@@ -60,4 +66,4 @@ one will be created by the script or reused if it already exists (think of this 
 azure-group-deploy.sh -a '301-storage-replica-md' -l eastus -u
 ```
 
-Tags: ``cluster, ha, storage spaces, storage spaces direct, S2D, windows server 2016, ws2016``
+Tags: ``ha, storage spaces, storage replica, replica, windows server 2016, ws2016``
