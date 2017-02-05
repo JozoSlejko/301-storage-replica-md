@@ -244,6 +244,8 @@ function InstallSourceFeatures
 
     Install-WindowsFeature -ComputerName $ComputerName -Name Storage-Replica,FS-FileServer -IncludeManagementTools -restart
 
+    start-sleep -seconds 60
+
     $timespan = new-timespan -Seconds $TimeOut
 
     $sw = [diagnostics.stopwatch]::StartNew()
