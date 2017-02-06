@@ -21,7 +21,7 @@ $SRPartnership = Get-SRPartnership
 
 Set-SRPartnership `
     -NewSourceComputerName $($SRPartnership.DestinationComputerName) `
-    -SourceRGName $($SRPartnership.SourceRGName) `
+    -SourceRGName $($SRPartnership.DestinationRGName) `
     -DestinationComputerName $($SRPartnership.SourceComputerName) `
     -DestinationRGName $($SRPartnership.SourceRGName) `
     -Confirm:$true
