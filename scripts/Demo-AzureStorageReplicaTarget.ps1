@@ -1,6 +1,6 @@
 ﻿#Deploy Storage Replica Target to Azure
 
-$SRSourceComputer = "kems2svm01"
+$SRSourceComputer = Read-Host -Prompt "Source Computer Name"
 
 .\New-AzureStorageReplicaTarget.ps1 `
     -SRSourceComputer $SRSourceComputer `
