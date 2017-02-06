@@ -15,14 +15,32 @@
 
 [CmdletBinding()]
 Param(
+
     [Parameter(Mandatory=$True,Position=1)]
     [string]$SRSourceComputer,
 
-    [string]$SRSourceDataDrive="F",
+    [string]$SRSourceDataDrive = "F",
 
-    [string]$SRSourceLogDrive="G",
+    [string]$SRSourceLogDrive = "G",
 
-    [string]$DomainName=$env:USERDNSDOMAIN
+    [string]$DomainName = $env:USERDNSDOMAIN,
+
+    [int]$SRAsyncRPO = 300,
+
+    [int]$VMDiskSize = 1023,
+
+    [string]$replicationMode = "asynchronous",
+
+    [string]$NamePrefix = -join ((97..122) | Get-Random -Count 6 | % {[char]$_}),
+
+    [bool]$enableAcceleratedNetworking = $false,
+
+    [string]$artifactsLocation = "https://raw.githubusercontent.com/albertwo1978/301-storage-replica-md/master",
+
+    [string]$artifactsLocationSasToken = "",
+
+    [string]$SRTemplateName = "azuredeploy.json"
+
 )
 
 $ErrorActionPreference="Stop"
@@ -55,11 +73,7 @@ $subscription =
     Select-AzureRmSubscription `
     -SubscriptionId $subscriptionId
 
-#Specify unique deployment name prefix (up to 6 alphanum chars)
-
-$NamePrefix = -join ((97..122) | Get-Random -Count 6 | % {[char]$_})
-
-#Enter Domain Admin Credentials
+#Enter Windows Server AD Domain Admin Credentials
 
 $AdminCreds = Get-Credential -Message "Enter Domain Admin credentials for your AD Domain"
 $AdminUsername = $AdminCreds.UserName
@@ -67,16 +81,9 @@ $AdminPassword = $AdminCreds.GetNetworkCredential().Password
 
 #Specify deployment values for Storage Replica target in Azure
 
-$enableAcceleratedNetworking = $false
-$VMDiskSize = 1023
 $SRSourceComputer = $SRSourceComputer.ToLower()
 $SRSourceDataDrive = $SRSourceDataDrive.Substring(0,1)
 $SRSourceLogDrive = $SRSourceLogDrive.Substring(0,1)
-$replicationMode = 'asynchronous'
-$SRAsyncRPO = 300
-$artifactsLocation = "https://raw.githubusercontent.com/albertwo1978/301-storage-replica-md/master"
-$artifactsLocationSasToken = ""
-$SRTemplateName = "azuredeploy.json"
 $SRDeploymentName = "${NamePrefix}-srdest-deploy"
 
 $SRRGName =
