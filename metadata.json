@@ -3,5 +3,5 @@
   "description": "This template creates an Azure VM on an existing VNET, and it provisions it as a Windows Server 2016 Storage Replica target.",
   "summary": "This template creates an Azure VM for a Windows Server 2016 Storage Replica target on an existing Azure VNET and Active Directory domain.",
   "githubUsername": "albertwo1978",
-  "dateUpdated": "2017-1-9"
+  "dateUpdated": "2017-4-6"
 }
